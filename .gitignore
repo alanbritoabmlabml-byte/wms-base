@@ -1,0 +1,31 @@
+# dependencias
+node_modules/
+vendor/
+
+# artefactos de build
+pwa/dist/
+pwa/dist-single/
+pwa/dev-dist/
+pwa/artifact-demo.html
+pwa/smoke*.mjs
+pwa/dbg.mjs
+
+# entorno
+.env
+.env.*
+!.env.example
+api/storage/*.key
+api/storage/logs/*
+api/storage/framework/cache/data/*
+api/storage/framework/sessions/*
+api/storage/framework/views/*
+api/bootstrap/cache/*
+*.sqlite
+*.sqlite-journal
+
+# sistema
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
