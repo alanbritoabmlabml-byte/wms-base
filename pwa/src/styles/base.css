@@ -1,0 +1,420 @@
+/* ===========================================================================
+   WMS Base — sistema visual "terminal industrial"
+   Diseñado para pantalla de 5" con guantes, bajo luz de nave y a contraluz
+   en el muelle de carga. Todo objetivo táctil >= 48px; el primario, 56px.
+   =========================================================================== */
+
+:root {
+  /* --- Paleta clara (base obligatoria) --- */
+  --ground: #f2f5f8;
+  --surface: #ffffff;
+  --surface-2: #e9eef3;
+  --surface-3: #dbe3ec;
+  --border: #c3cede;
+  --border-strong: #9fb0c4;
+
+  --text: #16202b;
+  --text-muted: #5a6a7d;
+  --text-faint: #8496aa;
+
+  /* Azul corporativo Plásticos Carmen */
+  --brand: #2c5aa0;
+  --brand-ink: #ffffff;
+  --brand-soft: #dde6f5;
+
+  /* Acción / semánticos (separados del color de marca a propósito) */
+  --ok: #0f8b63;
+  --ok-soft: #d7f1e6;
+  --warn: #b26a00;
+  --warn-soft: #fdeecf;
+  --danger: #c02626;
+  --danger-soft: #fbdede;
+  --info: #1f6f8b;
+
+  --scan: #0d8f7d; /* color del "haz": todo lo que espera un escaneo */
+  --scan-soft: #d3f0eb;
+
+  --shadow: 0 1px 2px rgba(16, 32, 48, 0.08), 0 4px 12px rgba(16, 32, 48, 0.06);
+
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+
+  --font-ui: 'Barlow Semi Condensed', 'Roboto Condensed', system-ui, sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Roboto Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --header-h: 52px;
+  --actionbar-h: 68px;
+
+  color-scheme: light dark;
+}
+
+/* --- Paleta oscura: por defecto del sistema --- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ground: #0e141a;
+    --surface: #17202a;
+    --surface-2: #1f2a36;
+    --surface-3: #293745;
+    --border: #33424f;
+    --border-strong: #4a5d6e;
+
+    --text: #e7eef5;
+    --text-muted: #9cafc0;
+    --text-faint: #6f8497;
+
+    --brand: #5b8fd9;
+    --brand-ink: #0b1219;
+    --brand-soft: #1b2b44;
+
+    --ok: #2ecf9a;
+    --ok-soft: #123329;
+    --warn: #f0a92a;
+    --warn-soft: #3a2a08;
+    --danger: #ff6b6b;
+    --danger-soft: #3d1618;
+    --info: #57b6d4;
+
+    --scan: #23d3b4;
+    --scan-soft: #0f302c;
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* --- Paleta oscura: elección explícita --- */
+:root[data-theme='dark'] {
+  --ground: #0e141a;
+  --surface: #17202a;
+  --surface-2: #1f2a36;
+  --surface-3: #293745;
+  --border: #33424f;
+  --border-strong: #4a5d6e;
+
+  --text: #e7eef5;
+  --text-muted: #9cafc0;
+  --text-faint: #6f8497;
+
+  --brand: #5b8fd9;
+  --brand-ink: #0b1219;
+  --brand-soft: #1b2b44;
+
+  --ok: #2ecf9a;
+  --ok-soft: #123329;
+  --warn: #f0a92a;
+  --warn-soft: #3a2a08;
+  --danger: #ff6b6b;
+  --danger-soft: #3d1618;
+  --info: #57b6d4;
+
+  --scan: #23d3b4;
+  --scan-soft: #0f302c;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.4;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#app {
+  height: 100%;
+}
+
+img {
+  max-width: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-ui);
+  margin: 0;
+  text-wrap: balance;
+  letter-spacing: 0.01em;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--scan);
+  outline-offset: 2px;
+}
+
+/* ---------- App shell ---------- */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--ground);
+}
+
+.app__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.app__body--flush {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ---------- Tipografía utilitaria ---------- */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.eyebrow {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: transform 0.06s ease, filter 0.12s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+  filter: brightness(1.08);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.btn--primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--brand-ink);
+}
+
+.btn--go {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #04120d;
+  min-height: 56px;
+  font-size: 18px;
+}
+
+.btn--danger {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn--ghost {
+  background: transparent;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--icon {
+  min-width: 48px;
+  padding: 0 12px;
+}
+
+/* ---------- Superficies ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row--between {
+  justify-content: space-between;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Chips de estado ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.chip--ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.chip--warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.chip--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.chip--neutral {
+  background: var(--surface-3);
+  color: var(--text-muted);
+}
+.chip--brand {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+/* ---------- Campos ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 16px; /* 16px evita el zoom automático de Chrome Android */
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.input::placeholder {
+  color: var(--text-faint);
+  font-family: var(--font-body);
+}
+
+/* ---------- Barra de acción inferior ---------- */
+.actionbar {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- Animaciones ---------- */
+@keyframes pulse-scan {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(35, 211, 180, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(35, 211, 180, 0.18);
+  }
+}
+
+@keyframes flash-ok {
+  from {
+    background: var(--ok-soft);
+  }
+  to {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
