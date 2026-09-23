@@ -2,20 +2,20 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "plasticoscarmen/wms-base-api",
     "type": "project",
-    "description": "WMS Base v0.1 — API de almacenes de Plasticos Carmen.",
+    "description": "Carmen WMS v0.2 — API para colectores Zebra y aplicación web de escritorio de Plásticos Carmen. Laravel 13.",
     "keywords": ["laravel", "wms", "almacen"],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
-        "laravel/framework": "^12.0",
+        "php": "^8.3",
+        "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^3.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^11.5.3"
+        "phpunit/phpunit": "^12.0"
     },
     "autoload": {
         "psr-4": {
@@ -30,6 +30,16 @@
         }
     },
     "scripts": {
+        "setup": [
+            "composer install",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate --ansi",
+            "@php artisan migrate --seed --force"
+        ],
+        "test": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

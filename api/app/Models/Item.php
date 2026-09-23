@@ -14,8 +14,8 @@ class Item extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'sku', 'name', 'base_uom_id', 'category', 'tracks_lot', 'tracks_expiry',
-        'shelf_life_days', 'min_stock', 'max_stock', 'is_active',
+        'sku', 'factory_code', 'name', 'base_uom_id', 'category', 'subcategory', 'tracks_lot', 'tracks_expiry',
+        'shelf_life_days', 'weight_kg', 'price', 'min_stock', 'max_stock', 'is_active',
     ];
 
     protected function casts(): array
@@ -27,6 +27,8 @@ class Item extends Model
             'min_stock' => 'decimal:4',
             'max_stock' => 'decimal:4',
             'is_active' => 'boolean',
+            'weight_kg' => 'decimal:3',
+            'price' => 'decimal:2',
         ];
     }
 
@@ -48,6 +50,11 @@ class Item extends Model
     public function warehouseSettings(): HasMany
     {
         return $this->hasMany(ItemWarehouse::class);
+    }
+
+    public function balances(): HasMany
+    {
+        return $this->hasMany(StockBalance::class);
     }
 
     public function scopeActive(Builder $query): Builder

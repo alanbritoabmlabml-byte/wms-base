@@ -27,9 +27,16 @@ avance parcial hacia un gran lanzamiento. Cada una agrega un proceso completo.
 
 ---
 
-## v0.2 — Salidas
+## v0.2 — Escritorio web + Salidas  *(en curso — código entregado, pendiente de verificación en instalación)*
 
-El proceso que hoy cubre SGLA y que WorkCorp no tiene completo.
+Se adelantó a esta versión el **escritorio web completo** en Laravel 13 (Blade +
+Alpine, sin build): tablero, ingresos, pedidos/despacho, stock e inventario,
+mapa de almacén, maestros y el módulo de configuración (importador CSV,
+diseñador de etiquetas QR, usuarios y roles, colectores, parámetros). Detalle
+en [`09-escritorio-laravel.md`](09-escritorio-laravel.md). Con ello, parte de lo
+previsto para v0.3 (conteos, ajustes con aprobación, IRA) ya tiene pantalla.
+
+El proceso de salidas que hoy cubre SGLA y que WorkCorp no tiene completo.
 
 - Pedidos de salida importados del ERP.
 - **Picking dirigido**: ruta ordenada por `sort_seq`, asignación FEFO/PEPS,

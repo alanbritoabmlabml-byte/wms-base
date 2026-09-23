@@ -54,6 +54,7 @@ class DatabaseSeeder extends Seeder
         $this->seedDevices();
         $this->seedOpeningStock($ledger);
         $this->seedReceipts();
+        $this->call(DesktopSeeder::class);
 
         $this->command?->info('Seed listo: '.Location::count().' ubicaciones, '
             .Item::count().' items, '.DB::table('stock_movements')->count().' movimientos de kardex.');

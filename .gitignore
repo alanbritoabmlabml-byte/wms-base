@@ -29,3 +29,6 @@ Thumbs.db
 *.log
 .idea/
 .vscode/
+
+# Librerías JS vendoreadas del escritorio (sin build)
+!api/public/vendor/

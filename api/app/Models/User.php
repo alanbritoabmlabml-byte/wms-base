@@ -14,7 +14,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'username', 'email', 'password', 'pin', 'is_active', 'last_login_at',
+        'name', 'username', 'email', 'password', 'pin', 'client_type', 'document_id', 'is_active', 'last_login_at',
     ];
 
     protected $hidden = ['password', 'pin', 'remember_token'];
@@ -28,6 +28,25 @@ class User extends Authenticatable
             'pin' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function device(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Device::class);
+    }
+
+    /** Rol más alto entre todos los almacenes (para etiquetas en pantalla). */
+    public function highestRole(): string
+    {
+        $order = ['ADMIN' => 3, 'SUPERVISOR' => 2, 'OPERADOR' => 1];
+        $roles = $this->relationLoaded('warehouses') ? $this->warehouses : $this->warehouses()->get();
+
+        return $roles->pluck('pivot.role')->sortByDesc(fn ($r) => $order[$r] ?? 0)->first() ?? 'OPERADOR';
+    }
+
+    public function isAdminSomewhere(): bool
+    {
+        return $this->warehouses()->wherePivot('role', 'ADMIN')->exists();
     }
 
     public function warehouses(): BelongsToMany
