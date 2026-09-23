@@ -8,15 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\PersonalAccessToken;
-use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // La migracion de personal_access_tokens vive en este repo (database/migrations),
-        // asi que Sanctum no debe cargar la suya y duplicar la tabla.
-        Sanctum::ignoreMigrations();
+        // Sanctum 4 ya no carga migraciones propias: la de personal_access_tokens
+        // vive en database/migrations, así que no hay nada que desactivar aquí.
     }
 
     public function boot(): void
