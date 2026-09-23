@@ -18,6 +18,24 @@ wms-base/
 
 ---
 
+## Publicar en Render (enlace para todos)
+
+El repositorio trae todo lo necesario: `render.yaml` (Blueprint), `api/Dockerfile`
+y `api/docker/entrypoint.sh`. Render crea el servicio web (PHP 8.4 + Apache) y
+una base PostgreSQL; al arrancar, el contenedor migra la base y carga los datos
+de Carmen WMS la primera vez.
+
+1. Entra a https://dashboard.render.com → **New +** → **Blueprint**.
+2. Conecta GitHub si te lo pide y elige `alanbritoabmlabml-byte/wms-base`.
+3. Render lee `render.yaml` y muestra `carmen-wms` (web) y `carmen-wms-db`
+   (PostgreSQL). Pulsa **Apply**.
+4. Espera a que el despliegue termine (5–10 min la primera vez) y abre la URL
+   `https://carmen-wms-XXXX.onrender.com`. Usuario **amoscoso / wms1234**.
+
+> Plan gratuito: el servicio se duerme tras 15 min sin uso (tarda ~1 min en
+> despertar) y la base PostgreSQL gratuita vence a los 30 días. Para uso diario
+> conviene el plan Starter del servicio y Basic de la base.
+
 ## Carmen WMS en Laravel 13 (v0.3) — instalación en Windows
 
 La aplicación web es **la misma interfaz del artifact Carmen WMS**: login,

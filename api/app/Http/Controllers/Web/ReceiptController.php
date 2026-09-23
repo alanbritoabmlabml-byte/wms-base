@@ -30,7 +30,7 @@ class ReceiptController extends Controller
             ->withCount(['lines as lines_total', 'lines as lines_done' => fn ($x) => $x->whereIn('status', ['COMPLETA', 'EXCEDIDA'])])
             ->withSum('lines as qty_expected', 'qty_expected')
             ->withSum('lines as qty_received', 'qty_received')
-            ->orderByRaw("FIELD(status, 'EN_PROCESO', 'ABIERTA', 'CERRADA', 'ANULADA')")
+            ->orderByRaw("CASE status WHEN 'EN_PROCESO' THEN 1 WHEN 'ABIERTA' THEN 2 WHEN 'CERRADA' THEN 3 ELSE 4 END")
             ->latest('id')
             ->paginate(25)->withQueryString();
 

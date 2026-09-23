@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Detrás del balanceador de Render (HTTPS terminado en el proxy).
+        $middleware->trustProxies(at: '*');
         // API-only: todas las respuestas son JSON, incluso los errores de framework.
         $middleware->api(prepend: [
             ForceJsonResponse::class,
