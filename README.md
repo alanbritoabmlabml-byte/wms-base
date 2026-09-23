@@ -10,7 +10,7 @@ desplegable, no un avance parcial. Ver [`docs/04-roadmap.md`](docs/04-roadmap.md
 
 ```
 wms-base/
-├── api/    Laravel 13 + MySQL — escritorio web (Blade + Alpine) y API REST del colector
+├── api/    Laravel 13 + MySQL — Carmen WMS (escritorio + colector) y API REST
 ├── pwa/    Cliente PWA (Vue 3 + Vite) para el colector Zebra
 └── docs/   Investigación, modelo de datos, contrato de API, integración Zebra
     └── prototipo/   Prototipo navegable escritorio + colector (HTML autocontenido)
@@ -18,16 +18,19 @@ wms-base/
 
 ---
 
-## Escritorio web (v0.2) — instalación en Windows
+## Carmen WMS en Laravel 13 (v0.3) — instalación en Windows
 
-El escritorio corre dentro de la misma aplicación Laravel que la API. No usa
-Node ni Vite: las vistas son Blade, la interactividad es Alpine.js incluido en
-`public/vendor/` y los gráficos se generan como SVG en el servidor.
+La aplicación web es **la misma interfaz del artifact Carmen WMS**: login,
+tablero, ingresos, pedidos y despacho, stock e inventario, mapa de almacén,
+maestros, configuración (importar, etiquetas QR, usuarios, colectores,
+parámetros) y el **modo colector** (Zebra TC21/TC52, responsive). Laravel
+sirve la página, autentica al usuario, entrega los datos desde MySQL (tablas
+`cw_*`) y guarda los cambios de recepción y picking que se hacen en la interfaz.
+No usa Node ni Vite.
 
-**Requisitos**: PHP 8.3 o superior (con extensiones `pdo_mysql`, `mbstring`,
-`openssl`, `fileinfo`, `gd` opcional), Composer 2 y MySQL 8 / MariaDB 10.6+.
-La forma más rápida en Windows es [Laravel Herd](https://herd.laravel.com) o
-XAMPP con PHP 8.3.
+**Requisitos**: PHP 8.3 o superior (extensiones `pdo_mysql`, `mbstring`,
+`openssl`, `fileinfo`), Composer 2 y MySQL 8 / MariaDB 10.6+. En Windows lo más
+rápido es [Laravel Herd](https://herd.laravel.com) o XAMPP con PHP 8.3.
 
 ```powershell
 cd C:\Users\DELL\Documents\wms-base\api
@@ -39,28 +42,22 @@ php artisan migrate --seed
 php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-Abra `http://localhost:8000` (o `http://<ip-del-servidor>:8000` desde otra PC de
-la red) y entre con **admin / wms1234** o **amoscoso / wms1234**.
+Abra `http://localhost:8000` y entre con **amoscoso / wms1234** (también
+`jguasace`, `frivero`, `abolsas`… con la misma contraseña). Desde un Zebra o un
+celular, abra `http://<ip-del-servidor>:8000`: la interfaz se adapta sola y el
+botón del teléfono en la barra superior abre el modo colector.
 
-Módulos del escritorio:
+| Pieza | Dónde está |
+|---|---|
+| Página (login + escritorio + colector) | `resources/views/carmen/app.blade.php`, `_shell.blade.php` |
+| Estilos e interfaz (idénticos al artifact) | `public/carmen/app.css`, `public/carmen/app.js`, `public/carmen/vendor.js` |
+| Enlace con Laravel (login, sesión, guardado) | `public/carmen/laravel.js` |
+| Controlador | `app/Http/Controllers/Web/CarmenController.php` |
+| Modelo de datos | `app/Support/CarmenSchema.php`, migración `2026_09_23_000300_create_carmen_tables` |
+| Datos iniciales (los mismos del artifact) | `database/seeders/CarmenSeeder.php` + `database/seeders/data/carmen-demo.json` |
 
-| Ruta | Módulo | Qué hace |
-|---|---|---|
-| `/` | Tablero | KPIs de ocupación, exactitud (IRA), pedidos, flujo 7 días, alertas y colectores |
-| `/ingresos` | Ingresos | Órdenes de ingreso, avance por línea, cierre forzado con motivo, anulación |
-| `/salidas` | Pedidos y despacho | Kanban recibido→despachado, olas de picking con reserva FEFO/FIFO, despachos por camión |
-| `/stock` | Stock e inventario | Saldos por ubicación, kardex, ajustes con aprobación, inventario cíclico, ABC, mín/máx |
-| `/mapa` | Mapa de almacén | Racks con mapa de calor de ocupación, alta de racks en serpentina, bloqueo de ubicaciones |
-| `/productos`, `/clientes`, `/transporte` | Maestros | Productos con parámetros por almacén, clientes, choferes y camiones |
-| `/configuracion/importar` | Importar datos | CSV → mapeo automático → validación → confirmación (productos, clientes, ubicaciones, choferes, camiones, usuarios) |
-| `/configuracion/etiquetas` | Etiquetas QR | Diseñador de plantillas (ubicación, ítem, pallet SSCC, despacho) con QR PLAIN/GS1/JSON/URL + Code128 e impresión por lote |
-| `/configuracion/usuarios` | Usuarios y roles | Cuentas de escritorio y colector, rol por almacén, matriz de permisos, reset de credenciales |
-| `/configuracion/colectores` | Colectores | Flota Zebra: almacén, operador, telemetría, sincronizaciones |
-| `/configuracion/parametros` | Parámetros | Reglas, put-away, códigos, impresión, integración ERP, respaldo, empresa — globales o por almacén |
-
-El almacén de trabajo se elige en la barra superior y queda en la sesión; toda
-consulta de stock lleva ese `warehouse_id`. Solo los usuarios con rol **ADMIN**
-en el almacén activo ven el módulo de Configuración.
+Las pantallas Blade de administración de la versión anterior siguen disponibles
+en `/gestion` (importador CSV real, usuarios, parámetros).
 
 > **Importación de datos**: por ahora acepta **CSV** (exportación de Excel:
 > `Guardar como → CSV UTF-8`). Detecta separador `,` `;` o tabulador, BOM y

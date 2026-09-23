@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\AuthController;
+use App\Http\Controllers\Web\CarmenController;
 use App\Http\Controllers\Web\CustomerController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DeviceController;
@@ -24,13 +25,25 @@ use Illuminate\Support\Facades\Route;
 | (middleware ResolveWorkingWarehouse). La API del colector vive en routes/api.php.
 */
 
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'show'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login.attempt');
-});
+// ---------------------------------------------------------------------
+// Carmen WMS — escritorio + colector (misma interfaz del artifact)
+// ---------------------------------------------------------------------
+Route::get('/', [CarmenController::class, 'app'])->name('home');
+Route::get('/carmen/datos.js', [CarmenController::class, 'data'])->name('carmen.data');
+Route::get('/login', fn () => redirect()->route('home'))->name('login');
+Route::post('/login', [CarmenController::class, 'login'])->middleware('throttle:10,1')->name('login.attempt');
 
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/logout', [CarmenController::class, 'logout'])->name('logout');
+    Route::post('/carmen/almacen', [CarmenController::class, 'switchWarehouse'])->name('carmen.warehouse');
+    Route::put('/carmen/api/{dataset}/{key}', [CarmenController::class, 'upsert'])->where('dataset', '[A-Z_]+')->name('carmen.upsert');
+    Route::post('/carmen/api/{dataset}', [CarmenController::class, 'append'])->where('dataset', '[A-Z_]+')->name('carmen.append');
+});
+
+// ---------------------------------------------------------------------
+// Gestión (pantallas Blade de administración, versión anterior) — /gestion
+// ---------------------------------------------------------------------
+Route::middleware('auth')->prefix('gestion')->group(function () {
     Route::post('/almacen', [AuthController::class, 'switchWarehouse'])->name('warehouse.switch');
     Route::get('/buscar', [DashboardController::class, 'search'])->name('search');
 

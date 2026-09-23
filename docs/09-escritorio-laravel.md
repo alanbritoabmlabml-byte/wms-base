@@ -1,4 +1,13 @@
-# 09 · Escritorio web en Laravel 13
+# 09 · Carmen WMS en Laravel 13
+
+> **v0.3 (23/09/2026):** la aplicación principal (`/`) es ahora la interfaz
+> exacta del artifact Carmen WMS —escritorio y modo colector— servida por
+> Laravel: `CarmenController` entrega la página y un script de datos con las
+> mismas constantes que usaba el artifact (`WAREHOUSES`, `PRODUCTS`, `STOCK`,
+> `PEDIDOS`…), leídas de las tablas `cw_*`; `public/carmen/laravel.js` hace el
+> login real y guarda en la BD los cambios de ingresos, pedidos e historial de
+> importaciones. Las pantallas Blade descritas abajo quedaron en `/gestion`.
+
 
 Cómo está construido el escritorio real (v0.2) que reemplaza al prototipo HTML
 de `docs/prototipo/`, y qué conviene saber antes de tocarlo.
