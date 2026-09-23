@@ -33,6 +33,7 @@
     <form class="login-card" id="loginForm" method="post" action="{{ route('login.attempt') }}" autocomplete="off">@csrf
       <div class="login-logo"><svg viewBox="0 0 600 430"><use href="#pc-logo"/></svg><span class="wordmark">PLÁSTICOS CARMEN</span><small>tecnología en plásticos</small></div>
       <h2>Iniciar sesión</h2>
+      <div class="seg" id="lgMode" style="display:flex;margin:8px 0 4px"><button type="button" class="on" data-mode="desk" style="flex:1">Escritorio</button><button type="button" data-mode="col" style="flex:1">Colector (PIN)</button></div>
       <div class="sub">Accede con tu usuario de escritorio.</div>
       <div class="field"><label for="lg-user">Usuario</label><input class="input" id="lg-user" name="username" value="{{ old('username') }}" placeholder="usuario" autocomplete="username" required></div>
       <div class="field"><label for="lg-pass">Contraseña</label><input class="input" id="lg-pass" name="password" type="password" value="" placeholder="contraseña" autocomplete="current-password" required></div>
@@ -42,8 +43,8 @@
         </select>
       </div>
       <button class="btn primary block" type="submit">Entrar</button>
-      <div class="login-demo" id="lgMsg"><b>Usuarios de prueba:</b> amoscoso, jguasace, frivero · contraseña <b>wms1234</b>.</div>
-      <div class="login-foot"><span>v{{ config('app.wms_version', '0.3.0') }} · Laravel 13</span><span>Sistemas · Plásticos Carmen</span></div>
+      <div class="login-demo" id="lgMsg"><b>Usuarios de prueba:</b> escritorio amoscoso, jguasace, frivero · contraseña <b>wms1234</b>. Colector pgarcia, rsuarez · PIN <b>1234</b>.</div>
+      <div class="login-foot"><span>v{{ config('app.wms_version', '0.4.0') }} · Laravel 13</span><span>Sistemas · Plásticos Carmen</span></div>
     </form>
   </section>
 </div>

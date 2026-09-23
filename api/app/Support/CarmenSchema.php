@@ -25,6 +25,9 @@ final class CarmenSchema
             ['filas', 'filas', 'integer'],
             ['cols', 'cols', 'integer'],
             ['zona', 'zona', 'string'],
+            ['wh', 'wh', 'string'],
+            ['tipo', 'tipo', 'string'],
+            ['cap', 'cap', 'integer'],
         ]],
         'PRODUCTS' => ['table' => 'cw_products', 'key' => 'codigo', 'fields' => [
             ['codigo', 'codigo', 'string'],
@@ -51,6 +54,7 @@ final class CarmenSchema
             ['cap', 'cap', 'integer'],
             ['sort', 'sort_seq', 'integer'],
             ['blocked', 'blocked', 'boolean'],
+            ['tipo', 'tipo', 'string'],
         ]],
         'STOCK' => ['table' => 'cw_stock', 'key' => null, 'fields' => [
             ['loc', 'loc', 'string'],
@@ -74,6 +78,8 @@ final class CarmenSchema
             ['nit', 'nit', 'string'],
             ['estado', 'estado', 'string'],
             ['pedidos', 'pedidos', 'integer'],
+            ['direccion', 'direccion', 'string'],
+            ['zona', 'zona', 'string'],
         ]],
         'DRIVERS' => ['table' => 'cw_drivers', 'key' => 'ci', 'fields' => [
             ['ci', 'ci', 'string'],
@@ -98,6 +104,7 @@ final class CarmenSchema
             ['wh', 'wh', 'json'],
             ['estado', 'estado', 'string'],
             ['ult', 'ult', 'string'],
+            ['correo', 'correo', 'string'],
         ]],
         'USERS_COL' => ['table' => 'cw_users_col', 'key' => 'user', 'fields' => [
             ['user', 'username', 'string'],
@@ -107,6 +114,7 @@ final class CarmenSchema
             ['estado', 'estado', 'string'],
             ['device', 'device', 'string'],
             ['online', 'online', 'boolean'],
+            ['documento', 'documento', 'string'],
         ]],
         'DEVICES' => ['table' => 'cw_devices', 'key' => 'id', 'fields' => [
             ['id', 'code', 'string'],
@@ -129,6 +137,8 @@ final class CarmenSchema
             ['doc', 'doc', 'string'],
             ['usuario', 'usuario', 'string'],
             ['muelle', 'muelle', 'string'],
+            ['wh', 'wh', 'string'],
+            ['obs', 'obs', 'string'],
         ]],
         'PEDIDOS' => ['table' => 'cw_pedidos', 'key' => 'nro', 'fields' => [
             ['nro', 'nro', 'string'],
@@ -142,6 +152,8 @@ final class CarmenSchema
             ['bultos', 'bultos', 'integer'],
             ['ola', 'ola', 'string'],
             ['ref', 'ref', 'string'],
+            ['wh', 'wh', 'string'],
+            ['obs', 'obs', 'string'],
         ]],
         'DESPACHOS' => ['table' => 'cw_despachos', 'key' => 'nro', 'fields' => [
             ['nro', 'nro', 'string'],
@@ -152,6 +164,8 @@ final class CarmenSchema
             ['bultos', 'bultos', 'integer'],
             ['destino', 'destino', 'string'],
             ['estado', 'estado', 'string'],
+            ['wh', 'wh', 'string'],
+            ['salida', 'salida', 'string'],
         ]],
         'KARDEX' => ['table' => 'cw_kardex', 'key' => null, 'fields' => [
             ['ts', 'ts', 'string'],
@@ -166,6 +180,7 @@ final class CarmenSchema
             ['doc', 'doc', 'string'],
             ['device', 'device', 'string'],
             ['offline', 'offline', 'boolean'],
+            ['wh', 'wh', 'string'],
         ]],
         'CONTEOS' => ['table' => 'cw_conteos', 'key' => 'nro', 'fields' => [
             ['nro', 'nro', 'integer'],
@@ -178,6 +193,10 @@ final class CarmenSchema
             ['dif', 'dif', 'integer'],
             ['resp', 'resp', 'string'],
             ['ira', 'ira', 'float'],
+            ['lines', 'lines', 'json'],
+            ['alcance', 'alcance', 'string'],
+            ['modalidad', 'modalidad', 'string'],
+            ['bloquear', 'bloquear', 'boolean'],
         ]],
         'IMPORT_HISTORY' => ['table' => 'cw_import_history', 'key' => null, 'fields' => [
             ['fecha', 'fecha', 'string'],
@@ -192,6 +211,31 @@ final class CarmenSchema
             ['k', 'kind', 'string'],
             ['t', 'title', 'string'],
             ['s', 'subtitle', 'string'],
+        ]],
+        'AJUSTES' => ['table' => 'cw_ajustes', 'key' => 'nro', 'fields' => [
+            ['nro', 'nro', 'string'],
+            ['fecha', 'fecha', 'string'],
+            ['wh', 'wh', 'string'],
+            ['loc', 'loc', 'string'],
+            ['codigo', 'codigo', 'string'],
+            ['lote', 'lote', 'string'],
+            ['tipo', 'tipo', 'string'],
+            ['qty', 'qty', 'integer'],
+            ['motivo', 'motivo', 'string'],
+            ['obs', 'obs', 'string'],
+            ['user', 'username', 'string'],
+            ['estado', 'estado', 'string'],
+            ['aprobador', 'aprobador', 'string'],
+            ['doc', 'doc', 'string'],
+        ]],
+        'SETTINGS' => ['table' => 'cw_settings', 'key' => 'k', 'fields' => [
+            ['k', 'k', 'string'],
+            ['v', 'v', 'json'],
+        ]],
+        'LABELS' => ['table' => 'cw_labels', 'key' => 'tpl', 'fields' => [
+            ['tpl', 'tpl', 'string'],
+            ['cfg', 'cfg', 'json'],
+            ['version', 'version', 'integer'],
         ]],
     ];
 }

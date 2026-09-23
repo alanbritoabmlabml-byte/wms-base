@@ -17,5 +17,5 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
     // Version que devuelve GET /health.
-    'wms_version' => env('WMS_VERSION', '0.1.0'),
+    'wms_version' => env('WMS_VERSION', '0.4.0'),
 ];

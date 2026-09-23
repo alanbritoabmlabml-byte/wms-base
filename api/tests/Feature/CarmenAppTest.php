@@ -19,7 +19,8 @@ class CarmenAppTest extends TestCase
 
         $this->get('/')->assertOk()
             ->assertSee('Carmen WMS. Un solo sistema para todos los almacenes.', false)
-            ->assertSee('Santa Cruz · Bolsas', false);
+            ->assertSee('Santa Cruz · Bolsas', false)
+            ->assertSee('Colector (PIN)', false);
     }
 
     #[Test]
@@ -41,6 +42,7 @@ class CarmenAppTest extends TestCase
         $this->seed(CarmenSeeder::class);
 
         $this->postJson('/login', ['username' => 'mfranco', 'password' => 'wms1234'])->assertStatus(422);
+        $this->postJson('/login', ['username' => 'mfranco', 'password' => '1234', 'mode' => 'col'])->assertOk();
     }
 
     #[Test]

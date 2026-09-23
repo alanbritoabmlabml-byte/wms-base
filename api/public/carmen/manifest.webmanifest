@@ -1,0 +1,10 @@
+{
+  "name": "Carmen WMS",
+  "short_name": "Carmen WMS",
+  "start_url": "/?colector=1",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#002048",
+  "theme_color": "#002048",
+  "icons": [{ "src": "/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

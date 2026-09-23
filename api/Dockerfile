@@ -26,6 +26,8 @@ COPY composer.json composer.lock* ./
 RUN composer install --no-dev --no-interaction --no-scripts --no-autoloader --prefer-dist
 
 COPY . .
+# Lector/escritor de Excel para importar y exportar (SheetJS, Apache-2.0).
+RUN [ -f public/carmen/xlsx.min.js ] || curl -fsSL -o public/carmen/xlsx.min.js https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js || true
 RUN composer dump-autoload --optimize --no-dev \
  && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/app/private bootstrap/cache \
  && chown -R www-data:www-data storage bootstrap/cache \

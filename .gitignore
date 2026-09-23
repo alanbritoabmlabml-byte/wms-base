@@ -32,3 +32,6 @@ Thumbs.db
 
 # Librerías JS vendoreadas del escritorio (sin build)
 !api/public/vendor/
+
+# SheetJS se descarga al construir la imagen (ver api/Dockerfile)
+api/public/carmen/xlsx.min.js

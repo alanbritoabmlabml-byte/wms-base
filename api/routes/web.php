@@ -36,7 +36,16 @@ Route::post('/login', [CarmenController::class, 'login'])->middleware('throttle:
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [CarmenController::class, 'logout'])->name('logout');
     Route::post('/carmen/almacen', [CarmenController::class, 'switchWarehouse'])->name('carmen.warehouse');
+    Route::get('/carmen/api/datos', [CarmenController::class, 'dataJson'])->name('carmen.data.json');
+    Route::post('/carmen/api/movimientos', [CarmenController::class, 'movements'])->name('carmen.movements');
+    Route::post('/carmen/api/usuarios', [CarmenController::class, 'saveUser'])->name('carmen.users.save');
+    Route::post('/carmen/api/usuarios/{username}/credenciales', [CarmenController::class, 'resetUser'])->name('carmen.users.reset');
+    Route::post('/carmen/api/mi-clave', [CarmenController::class, 'changePassword'])->name('carmen.password');
+    Route::post('/carmen/api/telemetria', [CarmenController::class, 'telemetry'])->name('carmen.telemetry');
+    Route::post('/carmen/api/lote/{dataset}', [CarmenController::class, 'bulk'])->where('dataset', '[A-Z_]+')->name('carmen.bulk');
+    Route::post('/carmen/api/importar/{dataset}', [CarmenController::class, 'import'])->where('dataset', '[a-z_]+')->name('carmen.import');
     Route::put('/carmen/api/{dataset}/{key}', [CarmenController::class, 'upsert'])->where('dataset', '[A-Z_]+')->name('carmen.upsert');
+    Route::delete('/carmen/api/{dataset}/{key}', [CarmenController::class, 'destroy'])->where('dataset', '[A-Z_]+')->name('carmen.destroy');
     Route::post('/carmen/api/{dataset}', [CarmenController::class, 'append'])->where('dataset', '[A-Z_]+')->name('carmen.append');
 });
 

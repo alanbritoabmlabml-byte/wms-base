@@ -1,5 +1,29 @@
 # 09 · Carmen WMS en Laravel 13
 
+> **v0.4 (23/09/2026) — sistema operativo completo.** Todos los botones del
+> escritorio y del colector ejecutan la operación real y la guardan en la base:
+>
+> - **Frontend** (`public/carmen/`): `core.js` (datos, servidor, cola sin
+>   conexión, modales, tablas paginadas, **autocompletado** `data-ac`, Excel,
+>   impresión), `views-ops.js` (inicio, ingresos, pedidos, despachos),
+>   `views-stock.js` (saldos, kardex, conteos, ajustes, ABC, mín/máx, mapa),
+>   `views-master.js`, `views-config.js` (importar + plantillas, etiquetas,
+>   usuarios, colectores, parámetros), `collector.js`, `boot.js`.
+> - **Servidor** (`CarmenController`): `POST /carmen/api/movimientos` aplica
+>   movimientos de stock en transacción (valida saldo, reserva/libera, kardex
+>   inmutable), `PUT|DELETE /carmen/api/{DATASET}/{clave}` con permisos por rol
+>   (matriz editable en Usuarios › Roles), `POST /carmen/api/lote/{DATASET}`,
+>   `POST /carmen/api/usuarios` (crea cuentas con contraseña/PIN),
+>   `POST /carmen/api/importar/{dataset}` (`App\Support\CarmenImport`, 12
+>   plantillas), `POST /carmen/api/telemetria`, `GET /carmen/api/datos`.
+> - **Multi-almacén real**: racks, documentos y kardex llevan `wh`
+>   (migración `2026_09_24_000400_carmen_v2`).
+> - **Colector**: ingreso con usuario + PIN (o escaneando la credencial QR),
+>   campo de escaneo con autocompletado en cada pantalla (productos,
+>   ubicaciones, pedidos, órdenes), GS1 (01)(10)(37), cola sin conexión que se
+>   envía sola, enrolamiento por QR `/?colector=1&equipo=ID`.
+> - Pruebas: `tests/Feature/CarmenOpsTest.php` + recorrido E2E con Playwright.
+
 > **v0.3 (23/09/2026):** la aplicación principal (`/`) es ahora la interfaz
 > exacta del artifact Carmen WMS —escritorio y modo colector— servida por
 > Laravel: `CarmenController` entrega la página y un script de datos con las

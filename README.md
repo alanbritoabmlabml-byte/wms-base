@@ -18,6 +18,16 @@ wms-base/
 
 ---
 
+## Uso diario (v0.4)
+
+- **Escritorio**: https://carmen-wms.onrender.com · usuario de escritorio + contraseña.
+- **Colector Zebra**: abre el mismo enlace con `?colector=1` (o escanea el QR de
+  Configuración › Colectores › Registrar equipo) y entra con usuario + PIN. En cada
+  pantalla se puede escanear o escribir y elegir del autocompletado.
+- **Cargar datos**: Configuración › Importar datos. Cada tabla tiene su plantilla
+  Excel (botón de descarga). Orden recomendado: productos → clientes → racks →
+  ubicaciones → stock inicial → órdenes/pedidos → transporte → colectores → usuarios.
+
 ## Publicar en Render (enlace para todos)
 
 El repositorio trae todo lo necesario: `render.yaml` (Blueprint), `api/Dockerfile`

@@ -121,6 +121,7 @@ class ReceiptFlowTest extends TestCase
         // 7. El supervisor si.
         $supervisor = $this->makeUser('amoscoso', 'SUPERVISOR');
         $supervisorToken = $supervisor->createToken('web')->plainTextToken;
+        $this->app['auth']->forgetGuards(); // el guard de pruebas recuerda al usuario anterior
 
         $this->postJson('/api/v1/receipts/'.$receipt->id.'/close', [], [
             'Authorization' => 'Bearer '.$supervisorToken,
