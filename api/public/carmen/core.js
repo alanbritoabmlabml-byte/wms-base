@@ -91,7 +91,7 @@ const initials = n => String(n || "?").split(" ").filter(Boolean).map(x => x[0])
 const ING_TYPES = ["Producción", "Compra", "Devolución", "Transferencia"];
 const ING_STATES = ["Borrador", "Habilitado", "En recepción", "Cerrado", "Anulado"];
 const OUT_STATES = ["Recibido", "Preparación", "Validado", "Embalado", "Despachado"];
-const UMS = ["BUL", "UN", "KG", "M", "ROLLO", "CJ", "PAQ", "LT"];
+const UMS = ["BUL", "PZA", "KG", "UN", "M", "ROLLO", "CJ", "PAQ", "LT", "MTS"];
 const DPTOS = ["Santa Cruz", "Beni", "Pando", "La Paz", "Cochabamba", "Tarija", "Oruro", "Potosí", "Chuquisaca"];
 const DESK_ROLES = ["Administrador", "Encargado de almacén", "Operador", "Supervisor (lectura)"];
 const COL_ROLES = ["Encargado", "Operador"];
