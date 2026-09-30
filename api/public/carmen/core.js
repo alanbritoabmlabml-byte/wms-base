@@ -457,9 +457,15 @@ const printDoc = (title, opts) => printHTML(title, docHTML({ title, ...opts }));
  * <input data-ac="prod|loc|locstock|client|user|ped|ing|lote|any" data-ac-wh="BOL2" data-ac-loc="E1-C01-N1">
  * Busca por código y descripción mientras se escribe; flechas + Enter o clic para elegir.
  * Al elegir: el input toma el código y emite el evento "ac:pick" con {code, item}. */
+/* 0 = igual, 1 = empieza por, 2 = contiene (para ordenar sugerencias de ubicación). */
+const acRank = (id, nq) => { const n = norm(id); return n === nq ? 0 : n.startsWith(nq) ? 1 : 2; };
 const AC_SOURCES = {
   prod: (q, el) => PRODUCTS.filter(p => p.estado !== "INACTIVO" || el.dataset.acAll).filter(p => has(p.codigo, q) || has(p.desc, q) || has(p.fabrica, q) || has(p.sub, q)).slice(0, 12).map(p => ({ code: p.codigo, t: p.desc, s: `${p.um} · ${p.sub} · stock ${fmt(stockOf(p.codigo, el.dataset.acWh || state.wh))}`, tag: "Producto" })),
-  loc: (q, el) => whLocs(el.dataset.acWh || state.wh).filter(l => has(l.id, q) || has((R(l.rack) || {}).name, q)).filter(l => !el.dataset.acZone || el.dataset.acZone.split(",").includes(zoneOf(l.id)) === !el.dataset.acZoneNot).sort((a, b) => a.sort - b.sort).slice(0, 12).map(l => { const st = STOCK.filter(s => s.loc === l.id); return { code: l.id, t: `${(R(l.rack) || {}).name || l.rack} · C${pad(l.col)} N${l.fila}`, s: l.blocked ? "BLOQUEADA" : st.length ? `${st.length} saldo(s) · ${fmt(sum(st, x => x.qty))} un.` : "vacía", tag: "Ubicación" }; }),
+  loc: (q, el) => { const nq = norm(q); return whLocs(el.dataset.acWh || state.wh).filter(l => has(l.id, q) || has(l.id.replace(/-/g, ""), nq.replace(/-/g, "")) || has((R(l.rack) || {}).name, q)).filter(l => !el.dataset.acZone || el.dataset.acZone.split(",").includes(zoneOf(l.id)) === !el.dataset.acZoneNot).sort((a, b) => acRank(a.id, nq) - acRank(b.id, nq) || (a.blocked - b.blocked) || a.sort - b.sort).slice(0, 12).map(l => { const st = STOCK.filter(s => s.loc === l.id); return { code: l.id, t: `${(R(l.rack) || {}).name || l.rack} · C${pad(l.col)} N${l.fila}`, s: l.blocked ? "BLOQUEADA" : st.length ? `${st.length} saldo(s) · ${fmt(sum(st, x => x.qty))} un.` : "vacía", tag: "Ubicación" }; }); },
+  /* Ubicaciones con saldo (una por ubicación): se busca por código de ubicación, rack, SKU, descripción o lote de lo que contiene. */
+  locwith: (q, el) => { const nq = norm(q); const wh = el.dataset.acWh || state.wh; const byLoc = {}; whStock(wh).forEach(s => (byLoc[s.loc] = byLoc[s.loc] || []).push(s));
+    return whLocs(wh).filter(l => byLoc[l.id]).map(l => { const st = byLoc[l.id]; const direct = has(l.id, q) || has(l.id.replace(/-/g, ""), nq.replace(/-/g, "")) || has((R(l.rack) || {}).name, q); const hits = direct ? [] : st.filter(s => has(s.codigo, q) || has(P(s.codigo).desc, q) || has(s.lote, q)); return direct || hits.length ? { l, st, hits, rank: direct ? acRank(l.id, nq) : 3 } : null; }).filter(Boolean).sort((a, b) => a.rank - b.rank || a.l.sort - b.l.sort).slice(0, 12)
+      .map(({ l, st, hits }) => ({ code: l.id, t: hits.length ? `${hits[0].codigo} · ${P(hits[0].codigo).desc}` : st.length === 1 ? `${st[0].codigo} · ${P(st[0].codigo).desc}` : `${uniq(st.map(s => s.codigo)).length} productos · ${(R(l.rack) || {}).name || l.rack}`, s: `${l.blocked ? "BLOQUEADA · " : ""}${fmt(sum(st, x => x.qty - (x.reservado || 0)))} un. libres${hits.length ? ` · lote ${hits[0].lote || "—"}` : st.length === 1 ? ` · lote ${st[0].lote || "—"}` : ` · ${st.length} saldos`}`, tag: "Ubicación" })); },
   locstock: (q, el) => { const code = el.dataset.acProd; const rows = whStock(el.dataset.acWh || state.wh).filter(s => (!code || s.codigo === code) && (has(s.loc, q) || has(s.codigo, q) || has(s.lote, q))); return rows.slice(0, 12).map(s => ({ code: s.loc, t: `${s.codigo} · ${P(s.codigo).desc}`, s: `lote ${s.lote || "—"} · ${fmt(s.qty)} un.${s.reservado ? ` (${fmt(s.reservado)} res.)` : ""}`, tag: "Saldo", item: s })); },
   client: q => CLIENTS.filter(c => has(c.codigo, q) || has(c.nombre, q) || has(c.nit, q) || has(c.ciudad, q)).slice(0, 12).map(c => ({ code: c.codigo, t: c.nombre, s: `${c.ciudad}, ${c.dpto} · NIT ${c.nit || "—"}`, tag: "Cliente" })),
   user: (q, el) => USERS_COL.filter(u => (!el.dataset.acWh || u.wh === el.dataset.acWh) && (has(u.user, q) || has(u.nombre, q))).slice(0, 12).map(u => ({ code: u.user, t: u.nombre, s: `${u.rol} · ${u.wh}`, tag: "Operador" })),
@@ -477,10 +483,16 @@ function acOpen(el) {
   const min = +(el.dataset.acMin ?? 1); if (q.length < min) { acClose(); return; }
   ac.el = el; ac.items = src(q, el); ac.idx = ac.items.length ? 0 : -1;
   if (!ac.pop) { ac.pop = document.createElement("div"); ac.pop.className = "ac-pop"; ac.pop.setAttribute("role", "listbox"); document.body.appendChild(ac.pop); ac.pop.addEventListener("mousedown", e => { const it = e.target.closest("[data-aci]"); if (!it) return; e.preventDefault(); acPick(+it.dataset.aci); }); }
-  const r = el.getBoundingClientRect(); const below = window.innerHeight - r.bottom > 240 || r.top < 260;
-  Object.assign(ac.pop.style, { left: `${Math.max(4, r.left)}px`, width: `${Math.max(r.width, Math.min(420, window.innerWidth - r.left - 8))}px`, top: below ? `${r.bottom + 4}px` : "", bottom: below ? "" : `${window.innerHeight - r.top + 4}px` });
+  acPlace();
   ac.pop.innerHTML = ac.items.length ? ac.items.map((it, i) => `<div class="ac-it ${i === ac.idx ? "on" : ""}" data-aci="${i}" role="option"><span class="tag">${esc(it.tag)}</span><div><b class="mono">${esc(it.code)}</b> <span>${esc(it.t)}</span><small>${esc(it.s || "")}</small></div></div>`).join("") : `<div class="ac-it muted">Sin coincidencias para «${esc(q)}»</div>`;
   ac.pop.hidden = false;
+}
+/** Ubica la lista bajo (o sobre) el campo y limita su alto al espacio disponible; se recalcula al aparecer el teclado o al desplazar. */
+function acPlace() {
+  const el = ac.el; if (!el || !ac.pop) return; const r = el.getBoundingClientRect(); const H = window.innerHeight;
+  const spaceBelow = H - r.bottom - 8, spaceAbove = r.top - 8; const below = spaceBelow >= 160 || spaceBelow >= spaceAbove;
+  const left = Math.max(4, Math.min(r.left, window.innerWidth - Math.min(420, window.innerWidth - 8) - 4));
+  Object.assign(ac.pop.style, { left: `${left}px`, width: `${Math.max(Math.min(r.width, window.innerWidth - 8), Math.min(420, window.innerWidth - left - 4))}px`, top: below ? `${r.bottom + 4}px` : "", bottom: below ? "" : `${H - r.top + 4}px`, maxHeight: `${Math.max(120, Math.min(320, below ? spaceBelow : spaceAbove))}px` });
 }
 function acPick(i) {
   const it = ac.items[i]; const el = ac.el; if (!it || !el) return;
@@ -503,8 +515,9 @@ document.addEventListener("keydown", e => {
   else if (e.key === "Escape") { e.stopPropagation(); acClose(); }
   else if (e.key === "Tab" && ac.idx >= 0 && ac.el.value.trim()) acPick(ac.idx);
 }, true);
-window.addEventListener("resize", acClose);
-document.addEventListener("scroll", e => { if (ac.el && !ac.pop.contains(e.target)) acClose(); }, true);
+/* El teclado del celular y el desplazamiento no cierran la lista: se recoloca. */
+window.addEventListener("resize", () => { if (ac.el && document.activeElement === ac.el) acPlace(); else acClose(); });
+document.addEventListener("scroll", e => { if (!ac.el || !ac.pop || ac.pop.hidden || ac.pop.contains(e.target)) return; if (document.activeElement === ac.el) acPlace(); else acClose(); }, true);
 
 /* Acciones de botones: <button data-a="nombre" data-...>. Cada módulo agrega las suyas. */
 const ACTIONS = {};
