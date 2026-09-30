@@ -165,6 +165,9 @@ function lotCode(turno = shiftNow(), d = new Date()) {
   const start = new Date(d.getFullYear(), 0, 1); const week = Math.ceil(((d - start) / 864e5 + start.getDay() + 1) / 7);
   return String(setting("formatoLote")).replace("{AA}", String(d.getFullYear()).slice(2)).replace("{SEM:2}", pad(week)).replace("{DIA}", ((d.getDay() + 6) % 7) + 1).replace("{TURNO}", String(turno).replace("T", ""));
 }
+/** «6-8, 20-22» → [6,7,8,20,21,22] (columnas con puente: solo niveles 3 y 4). */
+const puenteCols = spec => uniq(String(spec || "").split(/[,;\s]+/).filter(Boolean).flatMap(p => { const m = p.match(/^(\d+)-(\d+)$/); if (m) return Array.from({ length: Math.max(0, +m[2] - +m[1] + 1) }, (_, i) => +m[1] + i); return /^\d+$/.test(p) ? [+p] : []; }));
+const isPuente = (rack, col) => puenteCols((R(rack) || {}).puente).includes(col);
 const locCode = (rack, col, nivel) => String(setting("formatoUbic")).replace("{RACK}", rack).replace("{COL:2}", pad(col)).replace("{COL}", col).replace("{NIVEL}", nivel);
 
 /* ---------------------------------------------------------------- presentación */

@@ -8,6 +8,7 @@ const NAV = [
   { id: "salidas", lbl: "Pedidos y despacho", icon: "out", cnt: () => whPed().filter(p => p.estado !== "Despachado").length },
   { id: "stock", lbl: "Stock e inventario", icon: "stock", cnt: () => whAdj().filter(a => a.estado === "Pendiente").length || null },
   { id: "ubicaciones", lbl: "Mapa de almacén", icon: "map" },
+  { id: "informes", lbl: "Informes", icon: "file" },
   { grp: "Maestros" },
   { id: "productos", lbl: "Productos", icon: "box" },
   { id: "clientes", lbl: "Clientes", icon: "users" },

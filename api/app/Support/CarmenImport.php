@@ -19,7 +19,7 @@ final class CarmenImport
     public const DATASETS = [
         'productos' => ['label' => 'Productos', 'fields' => ['codigo*', 'descripcion*', 'um*', 'categoria', 'subcategoria', 'cod_fabrica', 'minimo', 'maximo', 'clase_abc', 'vida_util_dias', 'peso_kg', 'precio', 'estado']],
         'clientes' => ['label' => 'Clientes', 'fields' => ['codigo*', 'razon_social*', 'nit', 'telefono', 'direccion', 'departamento', 'ciudad', 'zona', 'canal', 'estado']],
-        'racks' => ['label' => 'Racks y áreas', 'fields' => ['codigo*', 'nombre*', 'niveles*', 'columnas*', 'tipo', 'zona', 'capacidad', 'almacen']],
+        'racks' => ['label' => 'Racks y áreas', 'fields' => ['codigo*', 'nombre*', 'niveles*', 'columnas*', 'tipo', 'zona', 'capacidad', 'almacen', 'puente']],
         'ubicaciones' => ['label' => 'Ubicaciones', 'fields' => ['codigo*', 'rack*', 'columna*', 'nivel*', 'tipo', 'capacidad', 'sort_seq', 'estado', 'almacen']],
         'stock_inicial' => ['label' => 'Stock inicial', 'fields' => ['ubicacion*', 'codigo*', 'cantidad*', 'lote', 'fecha_ingreso', 'vencimiento', 'estado', 'almacen']],
         'ingresos' => ['label' => 'Órdenes de ingreso', 'fields' => ['nro*', 'tipo*', 'codigo*', 'cantidad*', 'fecha', 'documento', 'origen', 'muelle', 'lote', 'turno', 'estado', 'almacen']],
@@ -174,6 +174,26 @@ final class CarmenImport
 
     // ---------------------------------------------------------------- topología
 
+    /** «6-8, 20-22» → [6,7,8,20,21,22]. */
+    public static function puenteCols(string $spec): array
+    {
+        $out = [];
+        foreach (preg_split('/[,;\s]+/', trim($spec)) as $part) {
+            if ($part === '') {
+                continue;
+            }
+            if (preg_match('/^(\d+)\s*-\s*(\d+)$/', $part, $m)) {
+                for ($c = (int) $m[1]; $c <= (int) $m[2]; $c++) {
+                    $out[] = $c;
+                }
+            } elseif (ctype_digit($part)) {
+                $out[] = (int) $part;
+            }
+        }
+
+        return array_values(array_unique($out));
+    }
+
     private function importRacks(array $rows, string $mode): void
     {
         $keys = $this->uniqueRows($rows, 'codigo');
@@ -194,9 +214,10 @@ final class CarmenImport
                 continue;
             }
             $cap = $this->num($r['capacidad'] ?? 6) ?: 6;
+            $puente = self::puenteCols((string) ($r['puente'] ?? ''));
             if (! $this->save('RACKS', 'code', $code, [
                 'id' => $code, 'name' => $r['nombre'], 'filas' => $filas, 'cols' => $cols, 'zona' => $r['zona'] ?? 'Reserva',
-                'wh' => $wh, 'tipo' => $r['tipo'] ?? 'Rack', 'cap' => $cap,
+                'wh' => $wh, 'tipo' => $r['tipo'] ?? 'Rack', 'cap' => $cap, 'puente' => $puente ? (string) $r['puente'] : null,
             ], $mode, $i, false)) {
                 continue;
             }
@@ -204,6 +225,9 @@ final class CarmenImport
             $base = ((int) DB::table('cw_locations')->max('sort_seq')) + 5;
             for ($c = 1; $c <= $cols; $c++) {
                 for ($f = 1; $f <= $filas; $f++) {
+                    if (in_array($c, $puente, true) && $f < 3) {
+                        continue; // bajo el puente solo existen los niveles 3 y 4
+                    }
                     $loc = sprintf('%s-C%02d-N%d', $code, $c, $f);
                     if (DB::table('cw_locations')->where('code', $loc)->exists()) {
                         continue;

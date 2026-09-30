@@ -28,6 +28,7 @@ final class CarmenSchema
             ['wh', 'wh', 'string'],
             ['tipo', 'tipo', 'string'],
             ['cap', 'cap', 'integer'],
+            ['puente', 'puente', 'string'],
         ]],
         'PRODUCTS' => ['table' => 'cw_products', 'key' => 'codigo', 'fields' => [
             ['codigo', 'codigo', 'string'],

@@ -17,6 +17,7 @@ img{max-width:100%}
   --font:"Carlito","Calibri","Segoe UI",system-ui,sans-serif;
   --mono:"JetBrains Mono","Consolas",ui-monospace,monospace;
   --heat-1:#e8eefb; --heat-2:#b9cbef; --heat-3:#7f9fe0; --heat-4:#3f66c4; --heat-5:#003080;
+  --fp-zone:#fff3c4; --fp-zone-line:#e0c060; --fp-zone-ink:#6b5300; --fp-office:#ece8f6; --fp-office-line:#c9bfe6; --fp-office-ink:#3d2f6b;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -33,6 +34,7 @@ img{max-width:100%}
     --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
     --shadow-lg:0 24px 64px -24px rgba(0,0,0,.8);
     --heat-1:#16244a; --heat-2:#23407f; --heat-3:#3560b8; --heat-4:#5b86e6; --heat-5:#9dbaf5;
+    --fp-zone:#3b2f0c; --fp-zone-line:#6b5300; --fp-zone-ink:#f0d070; --fp-office:#241d3d; --fp-office-line:#3d2f6b; --fp-office-ink:#c9bfe6;
   }
 }
 :root[data-theme="dark"]{
@@ -49,6 +51,7 @@ img{max-width:100%}
   --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
   --shadow-lg:0 24px 64px -24px rgba(0,0,0,.8);
   --heat-1:#16244a; --heat-2:#23407f; --heat-3:#3560b8; --heat-4:#5b86e6; --heat-5:#9dbaf5;
+  --fp-zone:#3b2f0c; --fp-zone-line:#6b5300; --fp-zone-ink:#f0d070; --fp-office:#241d3d; --fp-office-line:#3d2f6b; --fp-office-ink:#c9bfe6;
 }
 *{box-sizing:border-box}
 svg.i{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
@@ -722,3 +725,37 @@ tr.clickable[data-a]:hover td{background:var(--surface-2)}
 @media (max-width:360px){.capp .tiles{grid-template-columns:1fr 1fr}.capp .tile b{font-size:13px}.capp .c-stat b{font-size:16px}}
 @media (max-width:820px){.phone{height:100dvh}.col-overlay .phone .scrn .capp .c-top{padding-top:calc(10px + env(safe-area-inset-top,0px))}.col-overlay .toasts{bottom:72px}}
 .pal-hint{font-size:12px;color:var(--ink-3)}
+
+/* ===== plano del almacén ===== */
+.floorplan{width:100%;height:auto;max-height:680px;display:block;font-family:var(--font)}
+.floorplan .fp-floor{fill:var(--surface-2);stroke:var(--line-strong);stroke-width:.25}
+.floorplan text{font-size:1.9px;fill:var(--ink-2);font-weight:700;pointer-events:none;letter-spacing:.05px}
+.floorplan .fp-aisle rect{fill:var(--surface);stroke:none}
+.floorplan .fp-aisle text{font-size:2.6px;fill:var(--ink-4)}
+.floorplan .fp-zone rect{fill:var(--fp-zone);stroke:var(--fp-zone-line);stroke-width:.15}
+.floorplan .fp-zone text{font-size:2.2px;fill:var(--fp-zone-ink)}
+.floorplan .fp-office rect{fill:var(--fp-office);stroke:var(--fp-office-line);stroke-width:.15}
+.floorplan .fp-office text{font-size:1.8px;fill:var(--fp-office-ink)}
+.floorplan .fp-rack{cursor:pointer}
+.floorplan .fp-outline{fill:none;stroke:var(--line-strong);stroke-width:.2}
+.floorplan .fp-rack.on .fp-outline{stroke:var(--red);stroke-width:.5}
+.floorplan .fp-cell{fill:var(--heat-1);stroke:var(--surface);stroke-width:.12;cursor:pointer}
+.floorplan .fp-cell.h2{fill:var(--heat-2)}.floorplan .fp-cell.h3{fill:var(--heat-3)}.floorplan .fp-cell.h4{fill:var(--heat-4)}.floorplan .fp-cell.h5{fill:var(--heat-5)}
+.floorplan .fp-cell.blocked{fill:var(--bad-soft);stroke:var(--bad);stroke-width:.15}
+.floorplan .fp-cell.sel{stroke:var(--red);stroke-width:.4}
+.floorplan .fp-cell:hover{stroke:var(--ink);stroke-width:.3}
+.floorplan .fp-puente{fill:var(--surface);stroke:var(--ink-4);stroke-width:.12;stroke-dasharray:.5 .4}
+.floorplan .fp-pulbl{font-size:1.5px;fill:var(--ink-3);font-weight:400}
+.floorplan .fp-rack .fp-lbl{font-size:2.1px;fill:var(--navy)}
+.floorplan .fp-rack.area .fp-cell{fill:#e3f1e5}
+.floorplan .fp-rack.area .fp-cell.h2{fill:#bfe0c6}.floorplan .fp-rack.area .fp-cell.h3{fill:#8ccb9a}.floorplan .fp-rack.area .fp-cell.h4{fill:#4fae66}.floorplan .fp-rack.area .fp-cell.h5{fill:#1f8a3c}
+.floorplan .fp-rack.area .fp-lbl{fill:#1f5a2e;font-size:1.8px}
+.floorplan .fp-rack.bad .fp-cell{fill:var(--bad-soft)}.floorplan .fp-rack.bad .fp-lbl{fill:var(--bad);font-size:1.3px}
+.floorplan .fp-rack.info .fp-cell{fill:var(--info-soft)}.floorplan .fp-rack.info .fp-lbl{fill:var(--info);font-size:1.3px}
+.floorplan .fp-missing rect{fill:var(--surface);stroke:var(--ink-4);stroke-width:.25;stroke-dasharray:.8 .5}
+.floorplan .fp-missing text{fill:var(--ink-4);font-size:1.9px}
+.floorplan .fp-missing:hover rect{stroke:var(--navy);fill:var(--navy-soft)}
+.rack-scroll{overflow-x:auto;padding-bottom:4px}
+.rackmap .cell.puente{background:transparent;border:1px dashed var(--ink-4);cursor:default}
+.rackmap .cell.colsel{box-shadow:inset 0 0 0 2px var(--navy)}
+@media (max-width:820px){.floorplan{max-height:none}.floorplan text{font-size:2.4px}.floorplan .fp-rack .fp-lbl{font-size:2.6px}}

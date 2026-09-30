@@ -124,3 +124,11 @@ cargar el prefijo GS1 en Parámetros → Códigos.
   estado de los colectores, hoja de menú móvil (`#menuSheet`) y splash (`#splash`).
 - Iconos PWA: `public/img/icon-192.png`, `icon-512.png`, `apple-touch-icon.png`,
   `icon.svg` (fondo blanco); `manifest.webmanifest` con `background_color` blanco.
+
+### v0.5.1 — plano del almacén, informes y ajustes
+
+- `views-map.js`: plano SVG del almacén (layout MP-LY-01 de Bolsas incorporado como `BOLSAS_LAYOUT`; otros almacenes con layout automático o guardado en `SETTINGS layout:<wh>`), ocupación por columna, puentes, clic para crear racks faltantes (`rack-create-all`).
+- Racks: columna `puente` (migración `2026_10_01_000600_carmen_v3_puente`); en esas columnas solo se generan los niveles 3 y 4 (importador y modal).
+- `views-reports.js`: sección Informes (pedidos por estado con filtros y agrupación, despachos, productividad de operadores, recepciones) con impresión estándar y exportación.
+- Tablero de pedidos: columna «Despachado» oculta de forma predeterminada (`localStorage cw-showdsp`).
+- Unidades del ERP: PZA y MTS aceptadas; Reubicar con autocompletado por ubicación (`locwith`).

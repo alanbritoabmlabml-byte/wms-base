@@ -82,7 +82,7 @@ class CarmenController extends Controller
                 'ira' => $ira !== null ? number_format($ira * 100, 1, ',', '.').' %' : '—',
                 'online' => $ready ? DB::table('cw_devices')->where('online', true)->count() : 0,
             ],
-            'version' => substr(md5(implode('|', array_map(fn ($f) => (string) @filemtime(public_path('carmen/'.$f)), ['core.js', 'views-ops.js', 'views-stock.js', 'views-pallets.js', 'views-master.js', 'views-config.js', 'collector.js', 'boot.js', 'app.css']))), 0, 8),
+            'version' => substr(md5(implode('|', array_map(fn ($f) => (string) @filemtime(public_path('carmen/'.$f)), ['core.js', 'views-ops.js', 'views-stock.js', 'views-map.js', 'views-pallets.js', 'views-master.js', 'views-config.js', 'views-reports.js', 'collector.js', 'boot.js', 'app.css']))), 0, 8),
         ]);
     }
 

@@ -20,7 +20,7 @@
 @include('carmen._shell')
 <script src="{{ asset('carmen/vendor.js') }}?v={{ $version }}"></script>
 <script src="{{ route('carmen.data') }}?t={{ now()->timestamp }}"></script>
-@foreach (['core', 'views-ops', 'views-stock', 'views-pallets', 'views-master', 'views-config', 'collector', 'boot'] as $js)
+@foreach (['core', 'views-ops', 'views-stock', 'views-map', 'views-pallets', 'views-master', 'views-config', 'views-reports', 'collector', 'boot'] as $js)
 <script src="{{ asset('carmen/'.$js.'.js') }}?v={{ $version }}"></script>
 @endforeach
 </body>
