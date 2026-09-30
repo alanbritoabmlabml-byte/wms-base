@@ -1,27 +1,11 @@
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="pc-logo" viewBox="0 0 600 430">
-    <defs><mask id="pc-cmask"><rect width="600" height="430" fill="#fff"/><polygon points="498,170 900,-276 900,616" fill="#000"/></mask></defs>
-    <path fill="#003080" fill-rule="evenodd" d="M170 10a160 160 0 1 0 0 320a160 160 0 1 0 0-320zm0 70a90 90 0 1 1 0 180a90 90 0 1 1 0-180z"/>
-    <rect x="10" y="196" width="68" height="224" fill="#002048"/>
-    <path fill="#E00010" fill-rule="evenodd" mask="url(#pc-cmask)" d="M440 15a155 155 0 1 0 0 310a155 155 0 1 0 0-310zm0 70a85 85 0 1 1 0 170a85 85 0 1 1 0-170z"/>
-  </symbol>
-  <symbol id="pc-logo-white" viewBox="0 0 600 430">
-    <path fill="#fff" fill-rule="evenodd" d="M170 10a160 160 0 1 0 0 320a160 160 0 1 0 0-320zm0 70a90 90 0 1 1 0 180a90 90 0 1 1 0-180z"/>
-    <rect x="10" y="196" width="68" height="224" fill="#c9d6f2"/>
-    <path fill="#ff4d5a" fill-rule="evenodd" mask="url(#pc-cmask)" d="M440 15a155 155 0 1 0 0 310a155 155 0 1 0 0-310zm0 70a85 85 0 1 1 0 170a85 85 0 1 1 0-170z"/>
-  </symbol>
-</svg>
 
-<div id="splash" aria-hidden="true"><div class="splash-logo"><svg viewBox="0 0 600 430"><use href="#pc-logo"/></svg><span class="wordmark">PLÁSTICOS CARMEN</span><small>Carmen WMS</small></div><div class="splash-bar"><i></i></div></div>
+<div id="splash" aria-hidden="true"><div class="splash-logo"><img src="{{ asset('img/logo.png') }}" alt="Plásticos Carmen"><small>Carmen WMS</small></div><div class="splash-bar"><i></i></div></div>
 
 <div id="login" hidden>
   <section class="login-brand">
     <div class="grid"></div>
     <div>
-      <div class="brand-lockup">
-        <svg class="pc" viewBox="0 0 600 430"><use href="#pc-logo"/></svg>
-        <div><b class="wordmark">PLÁSTICOS CARMEN</b><span>Tecnología en plásticos</span></div>
-      </div>
+      <div class="brand-lockup"><img src="{{ asset('img/logo.png') }}" alt="Plásticos Carmen"></div>
       <h1>Carmen WMS. Un solo sistema para todos los almacenes.</h1>
       <p>Recepción, ubicación, picking, despacho, pallets e inventario cíclico. La misma verdad en el colector Zebra y en la pantalla del supervisor.</p>
     </div>
@@ -33,7 +17,7 @@
   </section>
   <section class="login-form">
     <form class="login-card" id="loginForm" method="post" action="{{ route('login.attempt') }}" autocomplete="off">@csrf
-      <div class="login-logo"><svg viewBox="0 0 600 430"><use href="#pc-logo"/></svg><span class="wordmark">PLÁSTICOS CARMEN</span><small>tecnología en plásticos</small></div>
+      <div class="login-logo"><img src="{{ asset('img/logo.png') }}" alt="Plásticos Carmen"><small>tecnología en plásticos</small></div>
       <h2>Iniciar sesión</h2>
       <div class="seg" id="lgMode" style="display:flex;margin:8px 0 4px"><button type="button" class="on" data-mode="desk" style="flex:1">Escritorio</button><button type="button" data-mode="col" style="flex:1">Colector (PIN)</button></div>
       <div class="sub">Accede con tu usuario de escritorio.</div>
@@ -54,8 +38,9 @@
 <div id="app" hidden>
   <aside class="rail">
     <div class="rail-head">
-      <span class="logo-tile"><svg class="pc" viewBox="0 0 600 430"><use href="#pc-logo"/></svg></span>
-      <div><b>Carmen WMS</b><span>Plásticos Carmen</span></div>
+      <img class="full" src="{{ asset('img/logo.png') }}" alt="Plásticos Carmen">
+      <img class="iso" src="{{ asset('img/isotipo.png') }}" alt="PC">
+      <b>Carmen WMS</b>
     </div>
     <nav id="nav"></nav>
     <div class="rail-foot">

@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="{{ asset('carmen/manifest.webmanifest') }}">
 <title>Carmen WMS</title>
-<link rel="icon" href="{{ asset('img/favicon.svg') }}" type="image/svg+xml">
+<link rel="icon" href="{{ asset('img/favicon.png') }}" type="image/png">
 <link rel="apple-touch-icon" href="{{ asset('img/apple-touch-icon.png') }}">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
