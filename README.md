@@ -18,6 +18,33 @@ wms-base/
 
 ---
 
+## Novedades v0.5
+
+- **Marca**: login y pantalla de carga con fondo blanco y el logo en sus colores
+  (azul y rojo); íconos PWA con fondo blanco para que la «P» nunca se pierda.
+- **Responsive real**: el colector no desborda en ninguna pantalla (Zebra TC21/TC52,
+  celulares de 360 px) y el escritorio se usa completo desde celular o tablet
+  (menú «Más» en la barra inferior, tablas con desplazamiento, modales a pantalla completa).
+- **Pedidos**: barra de filtros (texto, etapa, prioridad, atrasados, cliente,
+  operador, ola, fechas) y formatos de vista: tablero de tarjetas o compacto,
+  tabla, tarjetas, agrupado por cliente o por operador. Peso y antigüedad en cada pedido.
+- **Documentos estandarizados**: todas las impresiones (manifiesto de carga, nota de
+  entrega por pedido, hoja de picking, pedido, orden de ingreso, informe de conteo,
+  comprobante de ajuste, stock por ubicación, kardex, hoja de pallet) llevan logo y
+  razón social, número con QR, quién lo imprimió y firmas ya completadas
+  (despachante, chofer con CI/placa, recibí conforme con razón social y NIT).
+- **Tablero analítico**: periodo (hoy / 7 / 30 / 90 días), flujo de unidades,
+  pedidos por etapa y atrasados, clientes y productos más despachados, antigüedad
+  del stock, composición ABC y por zona, ocupación por rack, productividad por
+  operador, recepciones abiertas, colectores y pallets.
+- **Peso por bulto**: `peso_kg` del maestro alimenta pedidos, despachos (control de
+  capacidad del camión), pallets, stock e informes.
+- **Pallets consolidados (SSCC)**: Stock › Pallets y el botón «Pallet» del colector
+  agrupan bultos de uno o varios códigos en un pallet con etiqueta GS1 (00), lo
+  reubican en bloque escaneando el SSCC y lo desarman cuando corresponde.
+- **Colectores**: la pantalla muestra solo lo operativo — qué equipo tiene cada
+  operador, si está en línea (reportó en los últimos 5 min) y si tiene procesos en cola.
+
 ## Uso diario (v0.4)
 
 - **Escritorio**: https://carmen-wms.onrender.com · usuario de escritorio + contraseña.

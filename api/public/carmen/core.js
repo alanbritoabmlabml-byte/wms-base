@@ -59,12 +59,20 @@ const ICONS = {
   excel: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8l8 8M16 8l-8 8"/>',
   undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
   box2: '<rect x="3" y="3" width="18" height="18" rx="2"/>',
+  pallet: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="16" height="4" rx="1"/><path d="M3 21h18M6 17v4M18 17v4"/>',
+  scale: '<path d="M12 3v18M5 21h14"/><path d="M3 9l4-6 4 6a4 4 0 0 1-8 0zM13 9l4-6 4 6a4 4 0 0 1-8 0z"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  columns: '<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="16" rx="1"/><rect x="17" y="4" width="4" height="16" rx="1"/>',
+  rows: '<rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/>',
+  group: '<path d="M4 6h16M4 12h10M4 18h13"/><circle cx="19" cy="17" r="2"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
 };
 const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ""}</svg>`;
 
 /* ---------------------------------------------------------------- formato */
 const pad = (n, w = 2) => String(n).padStart(w, "0");
 const fmt = n => new Intl.NumberFormat("es-BO").format(Math.round((+n || 0) * 100) / 100);
+const fmtKg = n => `${new Intl.NumberFormat("es-BO", { maximumFractionDigits: 1 }).format(Math.round((+n || 0) * 10) / 10)} kg`;
 const fmtD = s => { if (!s) return "—"; const [y, m, d] = String(s).slice(0, 10).split("-"); return d ? `${d}/${m}/${y}` : String(s); };
 const localISO = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const todayISO = () => localISO();
@@ -121,6 +129,11 @@ const isVirtualLoc = locId => VIRTUAL_ZONES.includes(zoneOf(locId));
 const recepLocs = (wh = state.wh) => whLocs(wh).filter(l => zoneOf(l.id) === "Recepción").sort((a, b) => a.sort - b.sort);
 const stockOf = (code, wh = state.wh) => sum(whStock(wh).filter(s => s.codigo === code), s => s.qty);
 const availOf = (code, wh = state.wh) => sum(pickableStock(code, wh), s => s.qty - (s.reservado || 0));
+/** Peso por bulto (kg) del maestro; una línea pesa qty × peso. */
+const pesoOf = code => +P(code).peso || 0;
+const linesPeso = lines => sum(lines || [], l => (+l.qty || 0) * pesoOf(l.codigo));
+const pedPeso = p => p.pesoReal || p.peso || linesPeso(p.lines);
+const truckCapKg = t => { const m = String(t && t.cap || "").replace(/\./g, "").match(/(\d+)\s*kg/i); return m ? +m[1] : 0; };
 const occupancy = loc => { if (!loc) return 0; const s = STOCK.filter(x => x.loc === loc.id); return s.length ? Math.min(1, sum(s, x => x.qty) / ((loc.cap || 6) * 20)) : 0; };
 const isExpired = s => s.venc && s.venc < todayISO();
 const activeCountLocs = () => new Set(CONTEOS.filter(c => ["Habilitado", "En curso"].includes(c.estado) && c.bloquear).flatMap(c => (c.lines || []).filter(l => !l.counted).map(l => l.loc)));
@@ -257,9 +270,11 @@ async function api(method, url, body) {
   }
   return data;
 }
-const DATASET_NAMES = ["WAREHOUSES", "RACKS", "PRODUCTS", "LOCATIONS", "STOCK", "CLIENTS", "DRIVERS", "TRUCKS", "USERS_DESK", "USERS_COL", "DEVICES", "INGRESOS", "PEDIDOS", "DESPACHOS", "KARDEX", "CONTEOS", "IMPORT_HISTORY", "ALERTS", "AJUSTES", "SETTINGS", "LABELS"];
-const DS = () => ({ WAREHOUSES, RACKS, PRODUCTS, LOCATIONS, STOCK, CLIENTS, DRIVERS, TRUCKS, USERS_DESK, USERS_COL, DEVICES, INGRESOS, PEDIDOS, DESPACHOS, KARDEX, CONTEOS, IMPORT_HISTORY, ALERTS, AJUSTES, SETTINGS, LABELS });
-const KEYS = { WAREHOUSES: "id", RACKS: "id", PRODUCTS: "codigo", LOCATIONS: "id", CLIENTS: "codigo", DRIVERS: "ci", TRUCKS: "placa", USERS_DESK: "user", USERS_COL: "user", DEVICES: "id", INGRESOS: "nro", PEDIDOS: "nro", DESPACHOS: "nro", CONTEOS: "nro", AJUSTES: "nro", SETTINGS: "k", LABELS: "tpl" };
+if (typeof PALLETS === "undefined") window.PALLETS = [];
+const DATASET_NAMES = ["WAREHOUSES", "RACKS", "PRODUCTS", "LOCATIONS", "STOCK", "CLIENTS", "DRIVERS", "TRUCKS", "USERS_DESK", "USERS_COL", "DEVICES", "INGRESOS", "PEDIDOS", "DESPACHOS", "KARDEX", "CONTEOS", "IMPORT_HISTORY", "ALERTS", "AJUSTES", "SETTINGS", "LABELS", "PALLETS"];
+const DS = () => ({ WAREHOUSES, RACKS, PRODUCTS, LOCATIONS, STOCK, CLIENTS, DRIVERS, TRUCKS, USERS_DESK, USERS_COL, DEVICES, INGRESOS, PEDIDOS, DESPACHOS, KARDEX, CONTEOS, IMPORT_HISTORY, ALERTS, AJUSTES, SETTINGS, LABELS, PALLETS });
+const KEYS = { WAREHOUSES: "id", RACKS: "id", PRODUCTS: "codigo", LOCATIONS: "id", CLIENTS: "codigo", DRIVERS: "ci", TRUCKS: "placa", USERS_DESK: "user", USERS_COL: "user", DEVICES: "id", INGRESOS: "nro", PEDIDOS: "nro", DESPACHOS: "nro", CONTEOS: "nro", AJUSTES: "nro", SETTINGS: "k", LABELS: "tpl", PALLETS: "sscc" };
+const whPal = (wh = state.wh) => PALLETS.filter(p => (p.wh || "BOL2") === wh);
 function replaceData(data) { const ds = DS(); Object.keys(data || {}).forEach(k => { if (ds[k] && Array.isArray(data[k])) ds[k].splice(0, ds[k].length, ...data[k]); }); }
 
 /* Cola sin conexión (colector): movimientos y registros pendientes de enviar. */
@@ -414,12 +429,27 @@ function barcodeSVG(text, h = 40) {
   catch (e) { return `<div>${esc(text)}</div>`; }
 }
 /** Abre una ventana con el contenido listo para imprimir (etiquetas en mm o documento A4). */
-function printHTML(title, inner, { pageCss = "@page{size:A4;margin:14mm}", css = "" } = {}) {
-  const w = window.open("", "_blank", "width=900,height=700");
+function printHTML(title, inner, { pageCss = "@page{size:A4;margin:12mm 12mm 14mm}", css = "" } = {}) {
+  const w = window.open("", "_blank", "width=960,height=760");
   if (!w) { toast("El navegador bloqueó la ventana de impresión. Permite ventanas emergentes para este sitio.", "bad", 6000); return; }
-  w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${pageCss}*{box-sizing:border-box}body{margin:0;font-family:Carlito,Calibri,Arial,sans-serif;color:#000}.mono{font-family:"JetBrains Mono",Consolas,monospace}h1{font-size:20px;margin:0 0 4px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid #999;padding:5px 6px;text-align:left}th{background:#eee}.r{text-align:right}.muted{color:#555}.brand{color:#E00010;font-weight:800;letter-spacing:.04em}.label{page-break-after:always;overflow:hidden;position:relative;display:flex;gap:2mm;padding:2.5mm}.label:last-child{page-break-after:auto}.noprint{padding:10px;background:#f4f6fb;border-bottom:1px solid #ccd;font-size:13px}@media print{.noprint{display:none}}${css}</style></head><body><div class="noprint">Vista de impresión · ${esc(title)} · <button onclick="print()">Imprimir</button> <button onclick="close()">Cerrar</button></div>${inner}<script>setTimeout(()=>print(),450)<\/script></body></html>`);
+  w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${pageCss}*{box-sizing:border-box}body{margin:0;font-family:Carlito,Calibri,Arial,sans-serif;color:#000;font-size:12px}.mono{font-family:"JetBrains Mono",Consolas,monospace}h1{font-size:20px;margin:0 0 4px}table{border-collapse:collapse;width:100%;font-size:11.5px}th,td{border:1px solid #bbb;padding:4px 6px;text-align:left;vertical-align:top}th{background:#003080;color:#fff;font-weight:700;letter-spacing:.02em}tbody tr:nth-child(even) td{background:#f5f7fb}tfoot th,tr.tot th{background:#e8eefb;color:#003080}.r{text-align:right}.c{text-align:center}.muted{color:#555}.brand{color:#E00010;font-weight:800;letter-spacing:.04em}.label{page-break-after:always;overflow:hidden;position:relative;display:flex;gap:2mm;padding:2.5mm}.label:last-child{page-break-after:auto}.noprint{padding:10px;background:#f4f6fb;border-bottom:1px solid #ccd;font-size:13px;font-family:Arial,sans-serif}.noprint button{padding:6px 12px;margin-right:6px}@media print{.noprint{display:none}}
+  .doc{page-break-after:always;position:relative;min-height:calc(297mm - 30mm)}.doc:last-child{page-break-after:auto}.doc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:3px solid #003080;padding-bottom:8px;margin-bottom:10px}.doc-h .co{display:flex;gap:10px;align-items:center}.doc-h .co svg{width:64px;height:46px;flex:none}.doc-h .co .rs{font-family:Montserrat,Arial,sans-serif;font-weight:800;color:#E00010;font-size:15px;letter-spacing:.03em;line-height:1.1}.doc-h .co small{display:block;color:#555;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-top:2px}.doc-h .co .wh{font-size:10.5px;color:#333;margin-top:3px}.doc-h .ti{text-align:right}.doc-h .ti h1{font-size:19px;color:#003080;margin:0}.doc-h .ti .nro{font-family:"JetBrains Mono",Consolas,monospace;font-size:15px;font-weight:700;margin-top:2px}.doc-h .ti .sub{font-size:10.5px;color:#555;margin-top:2px}.doc-h .qr{flex:none}.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 14px;margin:8px 0 10px;font-size:11.5px;border:1px solid #dde3ee;border-radius:6px;padding:8px 10px;background:#fbfcfe}.meta div span{display:block;color:#666;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em}.meta div b{font-size:12px}h2.sec{font-size:13px;color:#003080;margin:12px 0 4px;border-left:3px solid #E00010;padding-left:6px}.sigs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px;page-break-inside:avoid}.sig{border-top:1px solid #000;padding-top:4px;font-size:10.5px;min-height:62px}.sig b{display:block;font-size:11.5px}.sig .who{display:block;font-size:11.5px;margin-top:2px}.sig .line{display:block;color:#777;margin-top:3px}.sig .sp{display:block;height:34px}.doc-f{position:absolute;left:0;right:0;bottom:0;border-top:1px solid #bbb;padding-top:4px;font-size:9.5px;color:#666;display:flex;justify-content:space-between;gap:10px}.obs{border:1px dashed #bbb;padding:6px 8px;border-radius:4px;margin-top:8px;font-size:11px;background:#fffdf5}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.box{border:1px solid #dde3ee;border-radius:6px;padding:8px 10px}.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:8px 0}.kpis div{border:1px solid #dde3ee;border-radius:6px;padding:6px 8px}.kpis div span{display:block;font-size:9.5px;color:#666;text-transform:uppercase;letter-spacing:.06em}.kpis div b{font-size:16px;color:#003080}${css}</style></head><body><div class="noprint">Vista de impresión · ${esc(title)} · <button onclick="print()">Imprimir</button><button onclick="close()">Cerrar</button></div>${inner}<script>setTimeout(()=>print(),450)<\/script></body></html>`);
   w.document.close();
 }
+/** Documento estándar de la empresa: cabecera con logo y razón social, número, fecha, quién lo imprime; pie con firmas autocompletadas. */
+function docHTML({ title, nro = "", sub = "", qr = null, meta = [], body = "", obs = "", sigs = [], notes = "" }) {
+  const logo = $("#pc-logo") ? `<svg viewBox="0 0 600 430">${$("#pc-logo").innerHTML}</svg>` : "";
+  const who = CW.user ? `${CW.user.nombre} (${CW.user.user})` : "—";
+  const m = [...meta, ["Impreso por", who], ["Fecha de impresión", nowHuman()]];
+  const sigHtml = sigs.length ? `<div class="sigs" style="grid-template-columns:repeat(${Math.min(4, sigs.length)},1fr)">${sigs.map(sg => `<div class="sig"><span class="sp"></span><b>${esc(sg.lbl)}</b>${sg.who ? `<span class="who">${esc(sg.who)}</span>` : ""}${sg.sub ? `<span class="line">${esc(sg.sub)}</span>` : ""}${sg.blank ? `<span class="line">${esc(sg.blank)}</span>` : ""}</div>`).join("")}</div>` : "";
+  return `<div class="doc"><div class="doc-h"><div class="co">${logo}<div><div class="rs">${esc(String(setting("razonSocial") || "PLÁSTICOS CARMEN").toUpperCase())}</div><small>Carmen WMS · ${esc(WH().name)}</small><div class="wh">${esc(WH().city || "")}</div></div></div><div class="ti"><h1>${esc(title)}</h1>${nro ? `<div class="nro">${esc(nro)}</div>` : ""}${sub ? `<div class="sub">${esc(sub)}</div>` : ""}</div>${qr ? `<div class="qr">${qrSVG(qr, 74)}</div>` : ""}</div>
+    <div class="meta">${m.map(([k, v]) => `<div><span>${esc(k)}</span><b>${v === null || v === undefined || v === "" ? "—" : esc(String(v))}</b></div>`).join("")}</div>
+    ${body}${obs ? `<div class="obs"><b>Observaciones:</b> ${esc(obs)}</div>` : ""}${sigHtml}
+    <div class="doc-f"><span>${esc(String(setting("razonSocial") || "Plásticos Carmen"))} · Carmen WMS v${esc(setting("appVersion") || "0.5.0")}</span><span>${nro ? esc(nro) + " · " : ""}generado el ${nowHuman()} por ${esc(who)}${notes ? " · " + esc(notes) : ""}</span></div></div>`;
+}
+/** Tabla para documentos impresos. cols: [{h, f, a, w}] */
+const docTable = (cols, rows, foot = "") => `<table><thead><tr>${cols.map(c => `<th class="${c.a || ""}" ${c.w ? `style="width:${c.w}"` : ""}>${c.h}</th>`).join("")}</tr></thead><tbody>${rows.map((r, i) => `<tr>${cols.map(c => `<td class="${c.a || ""}">${c.f(r, i)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${cols.length}" class="muted c">Sin registros</td></tr>`}</tbody>${foot ? `<tfoot>${foot}</tfoot>` : ""}</table>`;
+const printDoc = (title, opts) => printHTML(title, docHTML({ title, ...opts }));
 
 /* ---------------------------------------------------------------- autocompletado
  * <input data-ac="prod|loc|locstock|client|user|ped|ing|lote|any" data-ac-wh="BOL2" data-ac-loc="E1-C01-N1">
@@ -435,7 +465,9 @@ const AC_SOURCES = {
   ing: (q, el) => whIng(el.dataset.acWh || state.wh).filter(i => has(i.nro, q) || has(i.doc, q) || has(i.origen, q)).slice(0, 12).map(i => ({ code: i.nro, t: `${i.tipo} · ${i.origen}`, s: `${i.estado} · ${i.lines.length} líneas`, tag: "Ingreso" })),
   lote: (q, el) => { const rows = whStock(el.dataset.acWh || state.wh).filter(s => (!el.dataset.acProd || s.codigo === el.dataset.acProd) && (!el.dataset.acLoc || s.loc === el.dataset.acLoc) && has(s.lote, q)); const seen = new Set(); return rows.filter(s => !seen.has(s.lote) && seen.add(s.lote)).slice(0, 12).map(s => ({ code: s.lote, t: `${s.codigo} en ${s.loc}`, s: `${fmt(s.qty)} un. · ingreso ${fmtD(s.ingreso)}`, tag: "Lote" })); },
 };
-AC_SOURCES.any = (q, el) => [...AC_SOURCES.loc(q, el).slice(0, 4), ...AC_SOURCES.prod(q, el).slice(0, 5), ...AC_SOURCES.ped(q, el).slice(0, 3), ...AC_SOURCES.ing(q, el).slice(0, 3)].slice(0, 14);
+AC_SOURCES.pallet = (q, el) => whPal(el.dataset.acWh || state.wh).filter(p => p.estado !== "Desarmado" && (has(p.sscc, q) || has(p.loc, q) || (p.lines || []).some(l => has(l.codigo, q) || has(l.lote, q)))).slice(0, 12).map(p => ({ code: p.sscc, t: `${(p.lines || []).length} línea(s) · ${fmt(p.bultos)} bultos · ${fmtKg(p.peso)}`, s: `${p.loc || "sin ubicación"} · ${p.estado}`, tag: "Pallet", item: p }));
+AC_SOURCES.driver = q => DRIVERS.filter(d => d.estado !== "INACTIVO" && (has(d.nombre, q) || has(d.ci, q))).slice(0, 10).map(d => ({ code: d.ci, t: d.nombre, s: `${d.lic} · ${d.tel}`, tag: "Chofer" }));
+AC_SOURCES.any = (q, el) => [...AC_SOURCES.loc(q, el).slice(0, 4), ...AC_SOURCES.prod(q, el).slice(0, 5), ...AC_SOURCES.ped(q, el).slice(0, 3), ...AC_SOURCES.ing(q, el).slice(0, 2), ...AC_SOURCES.pallet(q, el).slice(0, 2)].slice(0, 14);
 const ac = { el: null, items: [], idx: -1, pop: null };
 function acClose() { if (ac.pop) ac.pop.hidden = true; ac.el = null; ac.items = []; ac.idx = -1; }
 function acOpen(el) {

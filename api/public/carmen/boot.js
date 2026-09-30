@@ -19,7 +19,7 @@ const NAV = [
   { id: "dispositivos", lbl: "Colectores", icon: "phone", cnt: () => DEVICES.filter(d => d.wh === state.wh && !d.online).length || null },
   { id: "parametros", lbl: "Parámetros", icon: "sliders" },
 ];
-const MOBILE_NAV = ["inicio", "ingresos", "salidas", "stock", "productos"];
+const MOBILE_NAV = ["inicio", "salidas", "stock", "ingresos"];
 
 function render() {
   acClose();
@@ -27,18 +27,21 @@ function render() {
   const y = state.keepScroll ? window.scrollY : 0; state.keepScroll = false;
   try { $("#view").innerHTML = v(); } catch (e) { console.error(e); $("#view").innerHTML = `<div class="card"><div class="empty">${ic("alert")}<div>No se pudo mostrar esta pantalla: ${esc(e.message)}</div></div></div>`; }
   $$("#nav a.nav").forEach(a => a.classList.toggle("active", a.dataset.id === state.route));
-  $$("#mnav a").forEach(a => a.classList.toggle("active", a.dataset.id === state.route));
+  $$("#mnav a, #menuSheet a.nav").forEach(a => a.classList.toggle("active", a.dataset.id === state.route));
   window.scrollTo({ top: y });
   if (v.after) v.after();
 }
-function go(route, sub) { if (!VIEWS[route]) route = "inicio"; state.route = route; if (sub) state.sub[route] = sub; if (location.hash !== "#" + route) history.pushState(null, "", "#" + route); render(); }
+function go(route, sub) { if (typeof closeMenu === "function") closeMenu(); if (!VIEWS[route]) route = "inicio"; state.route = route; if (sub) state.sub[route] = sub; if (location.hash !== "#" + route) history.pushState(null, "", "#" + route); render(); }
 function buildNav() {
   $("#nav").innerHTML = NAV.map(n => n.grp ? `<div class="grp">${n.grp}</div>` : `<a class="nav" href="#${n.id}" data-id="${n.id}">${ic(n.icon)}<span class="lbl">${n.lbl}</span>${n.cnt && n.cnt() ? `<span class="cnt">${n.cnt()}</span>` : ""}</a>`).join("");
-  $("#mnav").innerHTML = MOBILE_NAV.map(id => { const n = NAV.find(x => x.id === id); return `<a href="#${id}" data-id="${id}">${ic(n.icon)}<span>${n.lbl.split(" ")[0]}</span></a>`; }).join("");
+  $("#mnav").innerHTML = MOBILE_NAV.map(id => { const n = NAV.find(x => x.id === id); return `<a href="#${id}" data-id="${id}">${ic(n.icon)}<span>${n.lbl.split(" ")[0]}</span></a>`; }).join("") + `<a href="#" data-menu="1">${ic("menu")}<span>Más</span></a>`;
+  $("#menuSheet").innerHTML = `<div class="handle"></div>` + NAV.map(n => n.grp ? `<div class="grp">${n.grp}</div>` : `<a class="nav ${n.id === state.route ? "active" : ""}" href="#${n.id}" data-id="${n.id}" data-menu-go="${n.id}">${ic(n.icon)}<span class="lbl">${n.lbl}</span>${n.cnt && n.cnt() ? `<span class="cnt">${n.cnt()}</span>` : ""}</a>`).join("") + `<div class="grp">Sesión</div><a class="nav" href="#" id="msCol">${ic("phone")}<span class="lbl">Vista de colector</span></a><a class="nav" href="#" id="msTheme">${ic("moon")}<span class="lbl">Tema claro / oscuro</span></a><a class="nav" href="#" data-logout>${ic("logout")}<span class="lbl">Cerrar sesión</span></a>`;
   const allowed = CW.user && CW.user.wh && CW.user.wh.length ? CW.user.wh : WAREHOUSES.filter(w => w.type !== "TR").map(w => w.id);
   $("#ctxWh").innerHTML = WAREHOUSES.filter(w => w.type !== "TR" && allowed.includes(w.id)).map(w => `<option value="${w.id}" ${w.id === state.wh ? "selected" : ""}>${esc(w.name)}</option>`).join("");
   $$("#nav a.nav").forEach(a => a.classList.toggle("active", a.dataset.id === state.route));
 }
+function openMenu() { $("#menuSheet").classList.add("open"); $("#menuSheet").setAttribute("aria-hidden", "false"); $("#scrim").classList.add("open"); }
+function closeMenu() { const m = $("#menuSheet"); if (!m.classList.contains("open")) return; m.classList.remove("open"); m.setAttribute("aria-hidden", "true"); if (!overlayOpen()) $("#scrim").classList.remove("open"); }
 function applyRail() { $("#app").classList.toggle("rail-collapsed", state.railCollapsed); const b = $("#railToggle"); b.title = state.railCollapsed ? "Expandir menú" : "Contraer menú"; b.querySelector("svg").style.transform = state.railCollapsed ? "rotate(180deg)" : ""; }
 function toggleTheme() { const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); const next = cur === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = next; try { localStorage.setItem("cwms-theme", next); } catch (e) {} $("#btnTheme").innerHTML = ic(next === "dark" ? "sun" : "moon"); if ($("#labelStage")) renderLabel(); }
 async function switchWh(wh) {
@@ -90,7 +93,8 @@ async function logout() {
 $("#railToggle").onclick = () => { state.railCollapsed = !state.railCollapsed; try { localStorage.setItem("cwms-rail", state.railCollapsed ? "1" : "0"); } catch (e) {} applyRail(); };
 $("#btnTheme").onclick = toggleTheme;
 $("#ctxWh").onchange = e => switchWh(e.target.value);
-$("#scrim").onclick = () => { if ($("#modal").classList.contains("open")) closeModal(); else closeOverlays(); };
+$("#scrim").onclick = () => { if ($("#menuSheet").classList.contains("open")) { closeMenu(); return; } if ($("#modal").classList.contains("open")) closeModal(); else closeOverlays(); };
+$("#btnMenu").onclick = () => $("#menuSheet").classList.contains("open") ? closeMenu() : openMenu();
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && !$("#dlg")) { if ($("#modal").classList.contains("open")) closeModal(); else closeOverlays(); $("#gsPop").hidden = true; if ($("#colOverlay").classList.contains("open") && !matchMedia("(max-width:820px)").matches && !overlayOpen()) closeCollector(); }
   if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !$("#app").hidden) { e.preventDefault(); $("#gsearch").focus(); }
@@ -126,11 +130,14 @@ gs.addEventListener("blur", () => setTimeout(() => gsPop.hidden = true, 180));
 /* delegación de clics */
 document.addEventListener("click", e => {
   if (e.target.closest(".ac-pop")) return;
-  const t = e.target.closest("[data-a],[data-go],[data-sub],[data-page],[data-f],[data-ing],[data-ped],[data-dsp],[data-prod],[data-loc],[data-cell],[data-client],[data-count],[data-rack],[data-close],[data-ds],[data-imp-prev],[data-imp-next],[data-imp-reset],[data-mode],[data-tpl],[data-qrfmt],[data-field],[data-qrsize],[data-sample],[data-c],[data-q],[data-sim],#colNet,#colClose,#btnCollector,#drTheme,[data-logout],[data-chipset] .chip,.tog[data-tog]");
+  const t = e.target.closest("[data-menu],[data-menu-go],#msCol,#msTheme,[data-a],[data-go],[data-sub],[data-page],[data-f],[data-ing],[data-ped],[data-dsp],[data-prod],[data-loc],[data-cell],[data-client],[data-count],[data-rack],[data-close],[data-ds],[data-imp-prev],[data-imp-next],[data-imp-reset],[data-mode],[data-tpl],[data-qrfmt],[data-field],[data-qrsize],[data-sample],[data-c],[data-q],[data-sim],#colNet,#colClose,#btnCollector,#drTheme,[data-logout],[data-chipset] .chip,.tog[data-tog]");
   if (!t || t.disabled) return;
   if (t.closest("#loginForm")) return;
   const d = t.dataset;
-  if (t.id === "btnCollector") { openCollector(); return; }
+  if (t.id === "btnCollector" || t.id === "msCol") { e.preventDefault(); closeMenu(); openCollector(); return; }
+  if (t.id === "msTheme") { e.preventDefault(); toggleTheme(); return; }
+  if (d.menu) { e.preventDefault(); openMenu(); return; }
+  if (d.menuGo) { e.preventDefault(); closeMenu(); go(d.menuGo); return; }
   if (t.id === "colClose") { if (colOnly()) logout(); else closeCollector(); return; }
   if (t.id === "colNet") { Q.forced = !Q.forced; if (!Q.forced) flushQueue(); else toast("Sin red (simulado): los movimientos se guardan en el equipo y se envían al recuperar la conexión.", "info", 4500); cRender(); return; }
   if (t.id === "drTheme") { toggleTheme(); return; }
@@ -195,7 +202,7 @@ setInterval(() => { if (CW.user && Date.now() - lastAct > (+setting("inactividad
 /* ---------------------------------------------------------------- arranque */
 function enterApp() {
   paintUser(); buildNav(); applyRail();
-  $("#login").hidden = true;
+  $("#login").hidden = true; $("#splash").classList.add("off");
   const h = location.hash.replace("#", ""); if (VIEWS[h]) state.route = h;
   const wantCol = CW.mode === "col" || colOnly() || params.get("colector") || enrolled;
   if (colOnly()) { $("#app").hidden = true; document.body.classList.add("col-only"); openCollector(); }
@@ -209,4 +216,5 @@ function enterApp() {
 if (CW.user) {
   const allowed = CW.user.wh && CW.user.wh.length ? CW.user.wh : null; if (allowed && !allowed.includes(state.wh)) state.wh = allowed[0];
   enterApp();
-} else { $("#login").hidden = false; $("#app").hidden = true; }
+} else { $("#login").hidden = false; $("#app").hidden = true; $("#splash").classList.add("off"); }
+window.addEventListener("load", () => $("#splash").classList.add("off"));

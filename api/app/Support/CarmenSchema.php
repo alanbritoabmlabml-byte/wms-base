@@ -126,6 +126,7 @@ final class CarmenSchema
             ['wh', 'wh', 'string'],
             ['online', 'online', 'boolean'],
             ['cola', 'cola', 'integer'],
+            ['ult', 'ult', 'string'],
         ]],
         'INGRESOS' => ['table' => 'cw_ingresos', 'key' => 'nro', 'fields' => [
             ['nro', 'nro', 'string'],
@@ -154,6 +155,8 @@ final class CarmenSchema
             ['ref', 'ref', 'string'],
             ['wh', 'wh', 'string'],
             ['obs', 'obs', 'string'],
+            ['peso', 'peso', 'float'],
+            ['pesoReal', 'peso_real', 'float'],
         ]],
         'DESPACHOS' => ['table' => 'cw_despachos', 'key' => 'nro', 'fields' => [
             ['nro', 'nro', 'string'],
@@ -166,6 +169,10 @@ final class CarmenSchema
             ['estado', 'estado', 'string'],
             ['wh', 'wh', 'string'],
             ['salida', 'salida', 'string'],
+            ['peso', 'peso', 'float'],
+            ['despachante', 'despachante', 'string'],
+            ['recibe', 'recibe', 'string'],
+            ['obs', 'obs', 'string'],
         ]],
         'KARDEX' => ['table' => 'cw_kardex', 'key' => null, 'fields' => [
             ['ts', 'ts', 'string'],
@@ -236,6 +243,20 @@ final class CarmenSchema
             ['tpl', 'tpl', 'string'],
             ['cfg', 'cfg', 'json'],
             ['version', 'version', 'integer'],
+        ]],
+        'PALLETS' => ['table' => 'cw_pallets', 'key' => 'sscc', 'fields' => [
+            ['sscc', 'sscc', 'string'],
+            ['wh', 'wh', 'string'],
+            ['loc', 'loc', 'string'],
+            ['estado', 'estado', 'string'],
+            ['lines', 'lines', 'json'],
+            ['bultos', 'bultos', 'integer'],
+            ['peso', 'peso', 'float'],
+            ['usuario', 'usuario', 'string'],
+            ['fecha', 'fecha', 'string'],
+            ['cerrado', 'cerrado', 'string'],
+            ['pedido', 'pedido', 'string'],
+            ['obs', 'obs', 'string'],
         ]],
     ];
 }

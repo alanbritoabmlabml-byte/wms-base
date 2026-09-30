@@ -108,3 +108,19 @@ cargar el prefijo GS1 en Parámetros → Códigos.
   Zebra queda para v0.3 (`docs/06-integracion-zebra.md`).
 - El colector (PWA) aún no consume `label_templates` ni `settings`; el contrato
   está en `docs/05-contrato-api.md` como extensión propuesta.
+
+
+## v0.5 — UX/UI, pallets y documentos
+
+- Migración `2026_09_30_000500_carmen_v3`: tabla `cw_pallets` (sscc, wh, loc, estado,
+  lines JSON, bultos, peso, usuario, fecha, cerrado, pedido, obs); `cw_pedidos.peso`
+  y `peso_real`; `cw_despachos.peso`, `despachante`, `recibe`, `obs`; `cw_devices.ult`
+  (último reporte de telemetría, hora de La Paz).
+- Dataset `PALLETS` (clave `sscc`) en `CarmenSchema`; escritura con permisos
+  `recibir`, `picking` o `reubicar`; eliminable.
+- Frontend: nuevo `views-pallets.js` (savePallet / movePallet compartidos con el
+  colector), `docHTML`/`printDoc`/`docTable` en `core.js` para los documentos
+  estándar, `pesoOf`/`linesPeso`/`pedPeso`/`truckCapKg` para pesos, `devOnline` para el
+  estado de los colectores, hoja de menú móvil (`#menuSheet`) y splash (`#splash`).
+- Iconos PWA: `public/img/icon-192.png`, `icon-512.png`, `apple-touch-icon.png`,
+  `icon.svg` (fondo blanco); `manifest.webmanifest` con `background_color` blanco.

@@ -45,6 +45,7 @@ class CarmenController extends Controller
         'INGRESOS' => ['recibir', 'maestros'],
         'PEDIDOS' => ['picking', 'maestros'],
         'DESPACHOS' => ['picking'],
+        'PALLETS' => ['recibir', 'picking', 'reubicar'],
         'CONTEOS' => ['recibir', 'picking', 'reubicar', 'ajustar', 'aprobar'],
         'AJUSTES' => ['ajustar', 'aprobar'],
         'PRODUCTS' => ['maestros'],
@@ -61,7 +62,7 @@ class CarmenController extends Controller
     ];
 
     /** Datasets que se pueden eliminar desde la interfaz. */
-    private const DELETABLE = ['PRODUCTS', 'CLIENTS', 'DRIVERS', 'TRUCKS', 'RACKS', 'LOCATIONS', 'DEVICES', 'INGRESOS', 'PEDIDOS'];
+    private const DELETABLE = ['PRODUCTS', 'CLIENTS', 'DRIVERS', 'TRUCKS', 'RACKS', 'LOCATIONS', 'DEVICES', 'INGRESOS', 'PEDIDOS', 'PALLETS'];
 
     public function app(Request $request): View
     {
@@ -81,7 +82,7 @@ class CarmenController extends Controller
                 'ira' => $ira !== null ? number_format($ira * 100, 1, ',', '.').' %' : '—',
                 'online' => $ready ? DB::table('cw_devices')->where('online', true)->count() : 0,
             ],
-            'version' => substr(md5(implode('|', array_map(fn ($f) => (string) @filemtime(public_path('carmen/'.$f)), ['core.js', 'views-ops.js', 'views-stock.js', 'views-master.js', 'views-config.js', 'collector.js', 'boot.js', 'app.css']))), 0, 8),
+            'version' => substr(md5(implode('|', array_map(fn ($f) => (string) @filemtime(public_path('carmen/'.$f)), ['core.js', 'views-ops.js', 'views-stock.js', 'views-pallets.js', 'views-master.js', 'views-config.js', 'collector.js', 'boot.js', 'app.css']))), 0, 8),
         ]);
     }
 
@@ -408,7 +409,7 @@ class CarmenController extends Controller
         }
         DB::table('cw_devices')->where('id', $row->id)->update(array_filter([
             'bat' => $d['bat'] ?? null, 'cola' => $d['cola'] ?? 0, 'app' => $d['app'] ?? null, 'wh' => $d['wh'] ?? null,
-            'online' => true, 'username' => $request->user()->username, 'updated_at' => now(),
+            'online' => true, 'username' => $request->user()->username, 'ult' => now('America/La_Paz')->format('Y-m-d H:i'), 'updated_at' => now(),
         ], fn ($v) => $v !== null));
         DB::table('cw_users_col')->where('username', $request->user()->username)->update(['online' => true, 'device' => $d['id']]);
 

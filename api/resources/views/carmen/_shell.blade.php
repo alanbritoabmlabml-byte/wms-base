@@ -12,16 +12,18 @@
   </symbol>
 </svg>
 
-<div id="login">
+<div id="splash" aria-hidden="true"><div class="splash-logo"><svg viewBox="0 0 600 430"><use href="#pc-logo"/></svg><span class="wordmark">PLÁSTICOS CARMEN</span><small>Carmen WMS</small></div><div class="splash-bar"><i></i></div></div>
+
+<div id="login" hidden>
   <section class="login-brand">
     <div class="grid"></div>
     <div>
       <div class="brand-lockup">
-        <svg class="pc" viewBox="0 0 600 430"><use href="#pc-logo-white"/></svg>
+        <svg class="pc" viewBox="0 0 600 430"><use href="#pc-logo"/></svg>
         <div><b class="wordmark">PLÁSTICOS CARMEN</b><span>Tecnología en plásticos</span></div>
       </div>
       <h1>Carmen WMS. Un solo sistema para todos los almacenes.</h1>
-      <p>Recepción, ubicación, picking, despacho e inventario cíclico. La misma verdad en el colector Zebra y en la pantalla del supervisor.</p>
+      <p>Recepción, ubicación, picking, despacho, pallets e inventario cíclico. La misma verdad en el colector Zebra y en la pantalla del supervisor.</p>
     </div>
     <div class="login-stats">
       <div><b>{{ $stats['warehouses'] }}</b><span>almacenes conectados</span></div>
@@ -44,7 +46,7 @@
       </div>
       <button class="btn primary block" type="submit">Entrar</button>
       <div class="login-demo" id="lgMsg"><b>Usuarios de prueba:</b> escritorio amoscoso, jguasace, frivero · contraseña <b>wms1234</b>. Colector pgarcia, rsuarez · PIN <b>1234</b>.</div>
-      <div class="login-foot"><span>v{{ config('app.wms_version', '0.4.0') }} · Laravel 13</span><span>Sistemas · Plásticos Carmen</span></div>
+      <div class="login-foot"><span>v{{ config('app.wms_version', '0.5.0') }} · Laravel 13</span><span>Sistemas · Plásticos Carmen</span></div>
     </form>
   </section>
 </div>
@@ -52,7 +54,7 @@
 <div id="app" hidden>
   <aside class="rail">
     <div class="rail-head">
-      <svg class="pc" viewBox="0 0 600 430"><use href="#pc-logo-white"/></svg>
+      <span class="logo-tile"><svg class="pc" viewBox="0 0 600 430"><use href="#pc-logo"/></svg></span>
       <div><b>Carmen WMS</b><span>Plásticos Carmen</span></div>
     </div>
     <nav id="nav"></nav>
@@ -62,6 +64,7 @@
   </aside>
   <main>
     <header class="topbar">
+      <button class="btn icon ghost only-mobile" id="btnMenu" title="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <div class="ctx"><span class="dot"></span><span class="lbl">Almacén</span>
         <select id="ctxWh" aria-label="Almacén de trabajo"></select>
       </div>
@@ -84,6 +87,7 @@
 
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<aside class="menu-sheet" id="menuSheet" aria-hidden="true"></aside>
 <div class="modal" id="modal" aria-hidden="true"><div class="m-box" id="modalBox"></div></div>
 <div class="col-overlay" id="colOverlay">
   <div class="col-side">
